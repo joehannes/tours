@@ -6,6 +6,14 @@
     "blog": "Blog",
     "contact": "Contact"
   },
+  "header": {
+    "catalogueView": "Catalogue View",
+    "storyView": "Resume Story"
+  },
+  "floating": {
+    "guidedStory": "Guided Story",
+    "fullCatalogue": "Catalogue"
+  },
   "hero": {
     "title": "Discover {brand}",
     "subtitle": "Warm, effortless excursions for beautiful days across Bavaro, Punta Cana, and the Dominican coast.",

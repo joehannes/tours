@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "rules": [
+    {
+      "partyType": "solo",
+      "vibe": "water_chill",
+      "primaryTour": "Bávaro Party Boat & Natural Pool",
+      "secondaryTour": "Speed Boat & Snorkel Adventure",
+      "transportRecommendation": "Resort Pick-up Included",
+      "theme": "ocean_blue"
+    },
+    {
+      "partyType": "couple",
+      "vibe": "vip_luxury",
+      "primaryTour": "Saona Island Exclusive: The Lobster Feast VIP",
+      "secondaryTour": "Parasailing: Sky-High Adventure",
+      "transportRecommendation": "Private Luxury Suburban (Round-trip)",
+      "theme": "vip_obsidian"
+    },
+    {
+      "partyType": "family",
+      "vibe": "jungle_thrill",
+      "primaryTour": "Monkeyland: Meet the Squirrel Monkeys",
+      "secondaryTour": "Evolution Buggies: Off-Road Adventure",
+      "transportRecommendation": "Private Air-Conditioned Van",
+      "theme": "jungle_green"
+    },
+    {
+      "partyType": "friends",
+      "vibe": "party_nightlife",
+      "primaryTour": "Montaña Redonda: Views & Swings",
+      "secondaryTour": "Coco Bongo / Imagine Cave Party",
+      "transportRecommendation": "Private Party Shuttle",
+      "theme": "sunset_gold"
+    },
+    {
+      "partyType": "couple",
+      "vibe": "culture_history",
+      "primaryTour": "Santo Domingo: The First City",
+      "secondaryTour": "Catalina Island Snorkel Reef",
+      "transportRecommendation": "Private Intercity Driver",
+      "theme": "sunset_gold"
+    }
+  ]
+}

@@ -8,6 +8,7 @@ const RESOURCE_WITH_LOCALE = new Set([
   'example-tours',
   'story-elements',
   'intro-story',
+  'story-nodes',
   'translations',
 ]);
 
@@ -56,6 +57,8 @@ const JSONBIN_RESOURCE_MAP: Record<string, string | { en: string; es: string }> 
   'example-tours': { en: 'VITE_JSONBIN_EXAMPLETESTOURS_EN_BIN_ID', es: 'VITE_JSONBIN_EXAMPLETESTOURS_ES_BIN_ID' },
   'story-elements': { en: 'VITE_JSONBIN_STORY_ELEMENTS_EN', es: 'VITE_JSONBIN_STORY_ELEMENTS_ES' },
   'intro-story': { en: 'VITE_JSONBIN_JOURNEY_EN', es: 'VITE_JSONBIN_JOURNEY_ES' },
+  'story-nodes': { en: 'VITE_JSONBIN_STORY_NODES_EN', es: 'VITE_JSONBIN_STORY_NODES_ES' },
+  'story-quiz-rules': 'VITE_JSONBIN_STORY_RULES',
   'translations': { en: 'VITE_JSONBIN_EN_BIN_ID', es: 'VITE_JSONBIN_ES_BIN_ID' },
 };
 

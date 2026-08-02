@@ -6,6 +6,14 @@
     "blog": "Blog",
     "contact": "Contacto"
   },
+  "header": {
+    "catalogueView": "Ver Catálogo",
+    "storyView": "Volver a Historia"
+  },
+  "floating": {
+    "guidedStory": "Guía Interactiva",
+    "fullCatalogue": "Catálogo"
+  },
   "hero": {
     "title": "Descubre {brand}",
     "subtitle": "Excursiones cálidas y sencillas para días hermosos en Bávaro, Punta Cana y la costa dominicana.",

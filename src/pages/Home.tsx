@@ -13,11 +13,14 @@ import { generateWhatsAppMessage } from '../utils/whatsapp';
 import { generateBlogListStructuredData } from '../utils/seoHelpers';
 import { getFallbackIntroStory, getIntroStoryPreferred, StoryData } from '../services/introStoryService';
 import { useBlog } from '../contexts/BlogContext';
+import { useStory } from '../contexts/StoryContext';
+import { GuidedStoryContainer } from '../components/story/GuidedStoryContainer';
 
 const HERO_BACKGROUND_IMAGE = '/imgs/tours/tour_saona_island_detail_12.jpg';
 const HERO_BACKGROUND_VIDEO = '/buggy.mp4';
 
 const Home: React.FC = () => {
+  const { mode } = useStory();
   const { brandSettings } = useBrand();
   const { locale } = useI18n();
   const { blogArticles } = useBlog();
@@ -68,6 +71,10 @@ const Home: React.FC = () => {
       });
     };
   }, [locale, seoArticles]);
+
+  if (mode === 'story') {
+    return <GuidedStoryContainer />;
+  }
 
   return (
     <div id="top" className="relative">
