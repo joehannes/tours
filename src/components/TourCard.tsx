@@ -94,10 +94,16 @@ const TourCard: React.FC<TourCardProps> = ({
     }
   };
 
+  const radiusClass = index % 3 === 0
+    ? 'rounded-[38px_16px_32px_24px]'
+    : index % 3 === 1
+    ? 'rounded-[20px_40px_24px_36px]'
+    : 'rounded-[32px_24px_40px_18px]';
+
   return (
     <article
       onMouseEnter={() => playHoverFx()}
-      className={`group break-inside-avoid inline-block w-full mb-8 flex h-auto flex-col justify-between overflow-hidden rounded-3xl artsy-glass-card ${swayClass} transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_70px_rgba(6,29,43,0.28)]`}
+      className={`group break-inside-avoid inline-block w-full mb-8 flex h-auto flex-col justify-between overflow-hidden ${radiusClass} artsy-glass-card ${swayClass} transition-all duration-500 hover:-translate-y-2.5 hover:shadow-[0_35px_80px_rgba(4,19,29,0.32),0_0_45px_rgba(13,148,136,0.3)] shadow-[0_24px_60px_rgba(4,19,29,0.18),0_0_35px_rgba(13,148,136,0.15)] border border-white/60`}
     >
       {/* Media Frame */}
       <div className="relative overflow-hidden aspect-[16/10]">

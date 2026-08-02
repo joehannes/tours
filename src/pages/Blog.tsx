@@ -104,38 +104,42 @@ const Blog = () => {
           </div>
         ) : (
           <div className="grid gap-12 max-w-4xl mx-auto">
-            {articles.map((article) => (
-              <article
-                key={article.id}
-                id={article.slug}
-                className="glass-card rounded-[2rem] p-6 md:p-12 transition-all duration-500 hover:scale-[1.01]"
-              >
-                <header className="mb-8 border-b border-slate-200/50 pb-6">
-                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 font-['Playfair_Display',serif] tracking-tight leading-tight mb-5">
-                    {article.title}
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-4 text-sm font-['Poppins',sans-serif]">
-                    {article.tour && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-teal-500/10 to-cyan-500/10 px-4 py-1.5 font-semibold text-teal-800 shadow-sm border border-teal-500/10">
-                        <MdTour className="h-4 w-4 text-teal-600" />
-                        <FormattedMessage id="blog.relatedTourLabel" defaultMessage="Related tour" />: {article.tour}
-                      </span>
-                    )}
-                    {article.date && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100/80 px-4 py-1.5 font-medium text-slate-600 border border-slate-200/30">
-                        <MdEvent className="h-4 w-4 text-slate-500" />
-                        <time dateTime={article.date}>
-                          {article.date}
-                        </time>
-                      </span>
-                    )}
+            {articles.map((article, idx) => {
+              const swayClass = `animate-wave-sway-${(idx % 10) + 1}`;
+              const radiusClass = idx % 2 === 0 ? 'rounded-[36px_16px_32px_20px]' : 'rounded-[20px_36px_24px_32px]';
+              return (
+                <article
+                  key={article.id}
+                  id={article.slug}
+                  className={`glass-card ${radiusClass} ${swayClass} p-6 md:p-12 transition-all duration-500 hover:scale-[1.015] shadow-[0_24px_70px_rgba(4,19,29,0.15),0_0_35px_rgba(13,148,136,0.12)] border border-white/60`}
+                >
+                  <header className="mb-8 border-b border-slate-200/50 pb-6">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 font-['Playfair_Display',serif] tracking-tight leading-tight mb-5">
+                      {article.title}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-4 text-sm font-['Poppins',sans-serif]">
+                      {article.tour && (
+                        <span className="inline-flex items-center gap-1.5 rounded-[16px_6px_14px_8px] bg-gradient-to-r from-teal-500/15 to-cyan-500/15 px-4 py-1.5 font-semibold text-teal-800 shadow-sm border border-teal-500/20">
+                          <MdTour className="h-4 w-4 text-teal-600" />
+                          <FormattedMessage id="blog.relatedTourLabel" defaultMessage="Related tour" />: {article.tour}
+                        </span>
+                      )}
+                      {article.date && (
+                        <span className="inline-flex items-center gap-1.5 rounded-[14px_6px_12px_8px] bg-white/90 px-4 py-1.5 font-medium text-slate-700 border border-slate-200/50 shadow-sm">
+                          <MdEvent className="h-4 w-4 text-teal-600" />
+                          <time dateTime={article.date}>
+                            {article.date}
+                          </time>
+                        </span>
+                      )}
+                    </div>
+                  </header>
+                  <div className="prose prose-slate max-w-none font-['Poppins',sans-serif]">
+                    {renderPostContent(article.post)}
                   </div>
-                </header>
-                <div className="prose prose-slate max-w-none font-['Poppins',sans-serif]">
-                  {renderPostContent(article.post)}
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </div>

@@ -51,10 +51,16 @@ const AdventureCard: React.FC<AdventureCardProps> = ({ adventure, onBook, index 
     navigate(detailPaths[adventure.id] || '/tours');
   };
 
+  const radiusClass = index % 3 === 0
+    ? 'rounded-[36px_20px_32px_24px]'
+    : index % 3 === 1
+    ? 'rounded-[24px_38px_20px_34px]'
+    : 'rounded-[32px_22px_38px_18px]';
+
   return (
     <div
       onMouseEnter={() => playHoverFx()}
-      className={`group flex h-full flex-col overflow-hidden rounded-[28px] artsy-glass-card ${swayClass} transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_36px_100px_rgba(8,42,62,.24),0_12px_24px_rgba(23,182,168,.14)] sm:rounded-[32px]`}
+      className={`group flex h-full flex-col overflow-hidden ${radiusClass} artsy-glass-card ${swayClass} transition-all duration-500 hover:-translate-y-2.5 hover:shadow-[0_36px_100px_rgba(4,19,29,0.32),0_0_45px_rgba(13,148,136,0.28)] shadow-[0_24px_60px_rgba(4,19,29,0.18),0_0_35px_rgba(13,148,136,0.15)] border border-white/60`}
     >
       {/* Image container */}
       <div className="relative h-60 overflow-hidden bg-slate-200 sm:h-64 md:h-80">
