@@ -7,9 +7,11 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
+export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
+  if (!content) return null;
+
   return (
-    <div className={`prose prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:leading-relaxed prose-p:text-slate-600 prose-strong:text-teal-800 prose-ul:list-disc prose-ul:pl-5 prose-li:text-slate-600 prose-li:leading-relaxed prose-hr:border-slate-200 ${className}`}>
+    <div className={`prose prose-slate max-w-none text-inherit ${className}`}>
       <ReactMarkdown remarkPlugins={[remarkGfm]}>
         {content}
       </ReactMarkdown>

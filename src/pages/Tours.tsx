@@ -36,7 +36,7 @@ const Tours: React.FC = () => {
           <FormattedMessage id="tours.dynamicSubtitle" values={{ brand: brandSettings.brandName }} />
         </p>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {tours.map((tour) => (
+          {tours.map((tour, index) => (
             <TourCard
               key={tour.id}
               image={tour.image}
@@ -46,6 +46,7 @@ const Tours: React.FC = () => {
               pricingOptions={tour.pricingOptions}
               excursionName={tour.title}
               detailsPath={`/details/tours/${getServiceSlug(tour)}`}
+              index={index}
             />
           ))}
         </div>
@@ -55,3 +56,4 @@ const Tours: React.FC = () => {
 };
 
 export default Tours;
+

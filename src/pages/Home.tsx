@@ -128,8 +128,8 @@ const Home: React.FC = () => {
                     {/* Adventure cards grid */}
                     {section.adventures && (
                       <div className="grid gap-7 md:grid-cols-3 lg:gap-8">
-                        {section.adventures.map((adventure) => (
-                          <AdventureCard key={adventure.id} adventure={adventure} />
+                        {section.adventures.map((adventure, i) => (
+                          <AdventureCard key={adventure.id} adventure={adventure} index={i} />
                         ))}
                       </div>
                     )}
@@ -163,7 +163,7 @@ const Home: React.FC = () => {
       {!storyData ? null : storyData.callToActions && storyData.callToActions.length > 0 ? (
         <section className="home-section sunset-section px-4 py-20 text-white sm:py-24 md:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="mb-6 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
+            <h2 className="mb-6 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
               {storyData.storyTitle || 'Ready for Your Perfect Day in Paradise?'}
             </h2>
             {storyData.storyTagline && (
@@ -175,14 +175,16 @@ const Home: React.FC = () => {
               {storyData.callToActions.map((cta, i) => (
                 <button
                   key={`${cta.text}-${i}`}
+                  onMouseEnter={() => playHoverFx()}
                   onClick={() => {
+                    playClickFx();
                     if (cta.target?.startsWith('http')) {
                       window.open(cta.target, '_blank');
                     } else {
                       navigate(cta.target || '/');
                     }
                   }}
-                  className="px-8 py-4 bg-white text-pink-600 font-bold rounded-lg hover:shadow-xl transition-all hover:scale-105"
+                  className="tropical-button"
                 >
                   {cta.text}
                 </button>
@@ -193,7 +195,7 @@ const Home: React.FC = () => {
       ) : (
         <section className="home-section sunset-section px-4 py-20 text-white sm:py-24 md:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="mb-6 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
+            <h2 className="mb-6 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
               Ready for Your Perfect Day in Paradise?
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-white/90 sm:text-xl">
@@ -201,22 +203,28 @@ const Home: React.FC = () => {
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <button
-                onClick={() =>
+                onMouseEnter={() => playHoverFx()}
+                onClick={() => {
+                  playClickFx();
                   window.open(
                     generateWhatsAppMessage(
                       brandSettings.phoneNumber,
                       'Hola! Me gustaría información sobre sus tours.'
                     ),
                     '_blank'
-                  )
-                }
-                className="px-8 py-4 bg-white text-pink-600 font-bold rounded-lg hover:shadow-xl transition-all hover:scale-105"
+                  );
+                }}
+                className="tropical-button"
               >
                 Chat on WhatsApp
               </button>
               <button
-                onClick={() => navigate('/tours')}
-                className="px-8 py-4 bg-white/20 border-2 border-white text-white font-bold rounded-lg hover:bg-white/30 transition-all"
+                onMouseEnter={() => playHoverFx()}
+                onClick={() => {
+                  playClickFx();
+                  navigate('/tours');
+                }}
+                className="tropical-button-outline"
               >
                 View Adventures
               </button>
@@ -232,42 +240,42 @@ const Home: React.FC = () => {
       <section className="home-section reef-section px-4 py-20 text-white sm:py-24 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
-            <h2 className="mb-4 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
+            <h2 className="mb-4 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
               <FormattedMessage id="features.title" />
             </h2>
-            <p className="text-lg leading-8 text-white/[.78] sm:text-xl">Thoughtful service from arrival to return</p>
+            <p className="text-lg leading-8 text-white/[.78] sm:text-xl">Thoughtful service from arrival to return with Francisco Ferreras</p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3 lg:gap-8">
             {/* Safety First */}
-            <div className="home-feature-card group p-8">
+            <div className="home-feature-card group p-8 animate-wave-sway-1">
               <div className="text-5xl mb-4">🛡️</div>
-              <h3 className="text-2xl font-bold mb-3">
+              <h3 className="text-2xl font-bold mb-3 text-white">
                 <FormattedMessage id="features.safety.title" />
               </h3>
-              <p className="text-slate-300">
+              <p className="text-slate-200">
                 <FormattedMessage id="features.safety.description" />
               </p>
             </div>
 
             {/* Curated Experiences */}
-            <div className="home-feature-card group p-8">
+            <div className="home-feature-card group p-8 animate-wave-sway-2">
               <div className="text-5xl mb-4">🌿</div>
-              <h3 className="text-2xl font-bold mb-3">
+              <h3 className="text-2xl font-bold mb-3 text-white">
                 <FormattedMessage id="features.experiences.title" />
               </h3>
-              <p className="text-slate-300">
+              <p className="text-slate-200">
                 <FormattedMessage id="features.experiences.description" />
               </p>
             </div>
 
             {/* Transportation */}
-            <div className="home-feature-card group p-8">
+            <div className="home-feature-card group p-8 animate-wave-sway-3">
               <div className="text-5xl mb-4">🚗</div>
-              <h3 className="text-2xl font-bold mb-3">
+              <h3 className="text-2xl font-bold mb-3 text-white">
                 <FormattedMessage id="features.transportation.title" />
               </h3>
-              <p className="text-slate-300">
+              <p className="text-slate-200">
                 <FormattedMessage id="features.transportation.description" />
               </p>
             </div>
@@ -280,23 +288,25 @@ const Home: React.FC = () => {
         <div className="parallax-wash parallax-wash-right" />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="mb-6 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl md:text-5xl">
+          <h2 className="mb-6 font-serif text-3xl font-bold leading-tight text-slate-900 sm:text-4xl md:text-5xl">
             Your Caribbean Day Awaits
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
             Step into warm water, fresh air, local flavor, and a day that stays with you.
           </p>
           <button
-            onClick={() =>
+            onMouseEnter={() => playHoverFx()}
+            onClick={() => {
+              playClickFx();
               window.open(
                 generateWhatsAppMessage(
                   brandSettings.phoneNumber,
                   'Hola! Quiero hacer una reserva. ¿Cuáles son mis opciones?'
                 ),
                 '_blank'
-              )
-            }
-            className="px-10 py-4 bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold text-lg rounded-lg hover:shadow-2xl transition-all hover:scale-105 inline-block"
+              );
+            }}
+            className="tropical-button text-lg px-10 py-4"
           >
             Book Your Adventure Now
           </button>
