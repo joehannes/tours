@@ -2,5 +2,6 @@ node_modules/
 dist/
 .env
 .dev.vars
+.wrangler/
 # wrangler.toml is committed intentionally — KV namespace IDs are left empty
 # and set via Cloudflare dashboard or wrangler CLI.
