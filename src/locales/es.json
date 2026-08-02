@@ -1,18 +1,11 @@
 {
   "nav": {
     "home": "Inicio",
+    "plan": "Planea mi Día",
     "tours": "Tours",
     "transport": "Transporte",
     "blog": "Blog",
     "contact": "Contacto"
-  },
-  "header": {
-    "catalogueView": "Ver Catálogo",
-    "storyView": "Volver a Historia"
-  },
-  "floating": {
-    "guidedStory": "Guía Interactiva",
-    "fullCatalogue": "Catálogo"
   },
   "hero": {
     "title": "Descubre {brand}",

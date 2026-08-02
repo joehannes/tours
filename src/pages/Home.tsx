@@ -11,16 +11,16 @@ import { useBrand } from '../contexts/BrandContext';
 import { useI18n } from '../contexts/I18nContext';
 import { generateWhatsAppMessage } from '../utils/whatsapp';
 import { generateBlogListStructuredData } from '../utils/seoHelpers';
-import { getFallbackIntroStory, getIntroStoryPreferred, StoryData } from '../services/introStoryService';
+import { getIntroStoryPreferred, StoryData } from '../services/introStoryService';
 import { useBlog } from '../contexts/BlogContext';
-import { useStory } from '../contexts/StoryContext';
-import { GuidedStoryContainer } from '../components/story/GuidedStoryContainer';
+import QuickFacts from '../components/home/QuickFacts';
+import PathwaysSection from '../components/home/PathwaysSection';
+import { playClickFx, playHoverFx } from '../lib/soundEngine';
 
 const HERO_BACKGROUND_IMAGE = '/imgs/tours/tour_saona_island_detail_12.jpg';
 const HERO_BACKGROUND_VIDEO = '/buggy.mp4';
 
 const Home: React.FC = () => {
-  const { mode } = useStory();
   const { brandSettings } = useBrand();
   const { locale } = useI18n();
   const { blogArticles } = useBlog();
@@ -72,10 +72,6 @@ const Home: React.FC = () => {
     };
   }, [locale, seoArticles]);
 
-  if (mode === 'story') {
-    return <GuidedStoryContainer />;
-  }
-
   return (
     <div id="top" className="relative">
       {/* FAB WhatsApp Button */}
@@ -83,6 +79,9 @@ const Home: React.FC = () => {
 
       {/* Hero Section */}
       <Hero backgroundImage={HERO_BACKGROUND_IMAGE} backgroundVideo={HERO_BACKGROUND_VIDEO} />
+
+      {/* Hard facts, straight from the live catalogue */}
+      <QuickFacts />
 
       {seoArticles.length > 0 && (
         <section aria-hidden="true" style={hiddenBlogStyle}>
@@ -99,10 +98,15 @@ const Home: React.FC = () => {
       {/* Story Narrative Sections */}
       <div className="space-y-0 min-h-[50vh]">
         {!storyData ? (
-          <section className="home-section shore-section py-32 flex justify-center items-center">
-            <div className="flex flex-col items-center gap-6 animate-pulse">
-              <div className="w-16 h-16 rounded-full bg-teal-800/10" />
-              <div className="text-2xl text-teal-900/40 font-bold font-lobster">Loading your tropical journey...</div>
+          <section className="home-section shore-section py-24">
+            <div className="section-shell grid gap-10 md:grid-cols-2 md:items-center">
+              <div className="space-y-4 animate-pulse">
+                <div className="h-4 w-32 rounded-full bg-teal-900/10" />
+                <div className="h-10 w-3/4 rounded-2xl bg-teal-900/10" />
+                <div className="h-24 w-full rounded-3xl bg-white/40" />
+                <div className="h-4 w-2/3 rounded-full bg-teal-900/10" />
+              </div>
+              <div className="h-64 w-full animate-pulse rounded-[32px_14px_36px_20px] bg-white/40 md:h-80" />
             </div>
           </section>
         ) : (
@@ -290,35 +294,8 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Final CTA Section */}
-      <section className="home-section dawn-section relative overflow-hidden px-4 py-20 sm:py-24 md:px-8">
-        <div className="parallax-wash parallax-wash-right" />
-
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="mb-6 font-serif text-3xl font-bold leading-tight text-slate-900 sm:text-4xl md:text-5xl">
-            Your Caribbean Day Awaits
-          </h2>
-          <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
-            Step into warm water, fresh air, local flavor, and a day that stays with you.
-          </p>
-          <button
-            onMouseEnter={() => playHoverFx()}
-            onClick={() => {
-              playClickFx();
-              window.open(
-                generateWhatsAppMessage(
-                  brandSettings.phoneNumber,
-                  'Hola! Quiero hacer una reserva. ¿Cuáles son mis opciones?'
-                ),
-                '_blank'
-              );
-            }}
-            className="tropical-button text-lg px-10 py-4"
-          >
-            Book Your Adventure Now
-          </button>
-        </div>
-      </section>
+      {/* Closing: catalogue mode vs. the guided planner */}
+      <PathwaysSection />
 
       {/* Social Media Videos Section - Only shows if videos exist */}
       <SocialMediaVideos />

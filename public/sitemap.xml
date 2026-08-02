@@ -9,6 +9,14 @@
     <xhtml:link rel="alternate" hreflang="es" href="https://ferreras.tours/?lang=es"/>
   </url>
   <url>
+    <loc>https://ferreras.tours/plan</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferreras.tours/plan?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ferreras.tours/plan?lang=es"/>
+  </url>
+  <url>
     <loc>https://ferreras.tours/tours</loc>
     <lastmod>2026-08-02</lastmod>
     <changefreq>weekly</changefreq>

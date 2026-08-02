@@ -528,6 +528,203 @@ a:hover::after {
   box-shadow: 0 30px 70px rgba(6, 29, 43, 0.22), 0 0 45px rgba(10, 114, 128, 0.22);
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   Plan My Day — deep-ocean glass surface
+   The planner sits on top of the WebGL water, so every panel is translucent
+   navy: the shader keeps moving underneath while text stays fully legible.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.planner {
+  --planner-teal: #2dd4bf;
+  --planner-amber: #fbbf24;
+  position: relative;
+  isolation: isolate;
+}
+
+/* The global animated link underline would fight the planner's own states. */
+.planner a::after {
+  content: none;
+}
+
+.planner-glow {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.planner-panel {
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(155deg, rgba(4, 19, 29, 0.9) 0%, rgba(7, 44, 60, 0.82) 55%, rgba(4, 19, 29, 0.9) 100%);
+  box-shadow: 0 44px 110px rgba(2, 12, 20, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+}
+
+.planner-panel-soft {
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.planner-option {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  padding: 1.15rem 1.25rem;
+  text-align: left;
+  color: #f1f5f9;
+  box-shadow: 0 12px 30px rgba(2, 12, 20, 0.3);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease,
+    background 0.28s ease, box-shadow 0.28s ease;
+}
+
+.planner-option:hover {
+  transform: translateY(-3px);
+  border-color: rgba(45, 212, 191, 0.55);
+  background: linear-gradient(150deg, rgba(45, 212, 191, 0.16), rgba(255, 255, 255, 0.03));
+  box-shadow: 0 22px 50px rgba(13, 148, 136, 0.28);
+}
+
+.planner-option[data-selected='true'] {
+  border-color: rgba(45, 212, 191, 0.9);
+  background: linear-gradient(150deg, rgba(13, 148, 136, 0.4), rgba(4, 19, 29, 0.55));
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.55), 0 26px 60px rgba(13, 148, 136, 0.32);
+}
+
+.planner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.55rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  transition: all 0.25s ease;
+}
+
+.planner-chip:hover {
+  border-color: rgba(45, 212, 191, 0.6);
+  background: rgba(45, 212, 191, 0.14);
+  color: #ffffff;
+}
+
+.planner-chip[data-selected='true'] {
+  border-color: rgba(45, 212, 191, 0.9);
+  background: linear-gradient(120deg, rgba(45, 212, 191, 0.85), rgba(14, 165, 233, 0.75));
+  color: #04131d;
+  box-shadow: 0 10px 26px rgba(45, 212, 191, 0.35);
+}
+
+.planner-rail {
+  height: 4px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.planner-rail-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #2dd4bf, #38bdf8 55%, #fbbf24);
+  box-shadow: 0 0 18px rgba(45, 212, 191, 0.6);
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.planner-cta {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold uppercase tracking-[0.12em] transition duration-300;
+  background: linear-gradient(120deg, #2dd4bf 0%, #22d3ee 45%, #fbbf24 100%);
+  color: #04131d;
+  box-shadow: 0 18px 44px rgba(45, 212, 191, 0.35);
+}
+
+.planner-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 26px 60px rgba(45, 212, 191, 0.45);
+}
+
+.planner-cta-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] transition duration-300;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.07);
+  color: #e2e8f0;
+}
+
+.planner-cta-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.planner-key {
+  display: inline-grid;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #cbd5f5;
+}
+
+.planner-marquee {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  animation: plannerDrift 48s linear infinite;
+}
+
+@keyframes plannerDrift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planner-marquee { animation: none; }
+}
+
+/* Home page — the two ways in (catalogue vs. planner) */
+.pathway-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.72), rgba(236, 254, 255, 0.5));
+  box-shadow: 0 30px 80px rgba(6, 29, 43, 0.18);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.pathway-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 44px 110px rgba(6, 29, 43, 0.26);
+}
+
+.pathway-card-dark {
+  border-color: rgba(45, 212, 191, 0.35);
+  background: linear-gradient(150deg, rgba(4, 19, 29, 0.92), rgba(9, 60, 78, 0.86));
+  box-shadow: 0 34px 90px rgba(2, 12, 20, 0.45);
+}
+
 @keyframes fabGlowPulse {
   0%, 100% {
     background-color: rgba(4, 19, 29, 0.92);

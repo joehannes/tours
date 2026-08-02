@@ -52,6 +52,7 @@ const buildSitemap = async () => {
 
   const pages = [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
+    { path: '/plan', priority: '0.9', changefreq: 'weekly' },
     { path: '/tours', priority: '0.9', changefreq: 'weekly' },
     { path: '/transport', priority: '0.9', changefreq: 'weekly' },
     { path: '/blog', priority: '0.8', changefreq: 'daily' },

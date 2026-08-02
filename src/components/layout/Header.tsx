@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
-import { HiMenu, HiX } from 'react-icons/hi';
+import { HiMenu, HiX, HiSparkles } from 'react-icons/hi';
 import { MdHome, MdTour, MdLocalTaxi, MdEmail, MdLibraryBooks } from 'react-icons/md';
 import LanguageSwitcher from '../LanguageSwitcher';
 import SoundToggle from '../SoundToggle';
@@ -16,6 +16,10 @@ const Header: React.FC = () => {
     playClickFx();
     setIsMenuOpen(false);
   };
+
+  // Active route gets a filled pill so guests always know where they are.
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    `nav-link-pill ${isActive ? 'bg-teal-600/15 text-teal-800 ring-1 ring-teal-600/25' : ''}`;
 
   return (
     <header className="lobster-header sticky top-0 z-50 overflow-visible border-b border-white/30 bg-white/70 shadow-[0_8px_32px_rgba(8,42,62,.15)] backdrop-blur-xl">
@@ -53,26 +57,44 @@ const Header: React.FC = () => {
         <nav
           className={`${isMenuOpen ? 'flex' : 'hidden'} absolute left-3 right-3 top-[calc(100%+10px)] flex-col gap-3 rounded-[28px] border border-white/40 bg-white/85 px-6 py-6 shadow-[0_16px_48px_rgba(8,42,62,.16)] backdrop-blur-2xl md:static md:flex md:flex-row md:items-center md:gap-3 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
         >
-          <Link to="/#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className="nav-link-pill">
+          <NavLink to="/#top" end onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
             <MdHome />
             <FormattedMessage id="nav.home" />
-          </Link>
-          <Link to="/tours#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className="nav-link-pill">
+          </NavLink>
+
+          {/* The planner gets its own accented tab — it is the fastest way in. */}
+          <NavLink
+            to="/plan#top"
+            onClick={handleNavClick}
+            onMouseEnter={() => playHoverFx()}
+            className={({ isActive }) =>
+              `flex items-center gap-2 rounded-full px-4 py-2 font-bold transition duration-300 ${
+                isActive
+                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-[0_10px_26px_rgba(13,148,136,.35)]'
+                  : 'bg-gradient-to-r from-teal-500/15 to-amber-400/15 text-teal-800 ring-1 ring-teal-500/30 hover:from-teal-500/25 hover:to-amber-400/25'
+              }`
+            }
+          >
+            <HiSparkles className="h-4 w-4" />
+            <FormattedMessage id="nav.plan" defaultMessage="Plan My Day" />
+          </NavLink>
+
+          <NavLink to="/tours#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
             <MdTour />
             <FormattedMessage id="nav.tours" />
-          </Link>
-          <Link to="/transport#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className="nav-link-pill">
+          </NavLink>
+          <NavLink to="/transport#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
             <MdLocalTaxi />
             <FormattedMessage id="nav.transport" defaultMessage="Transport" />
-          </Link>
-          <Link to="/blog#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className="flex items-center gap-2 rounded-full px-4 py-2 font-semibold text-slate-700 transition hover:bg-cyan-50 hover:text-cyan-700">
+          </NavLink>
+          <NavLink to="/blog#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
             <MdLibraryBooks />
             <FormattedMessage id="nav.blog" defaultMessage="Blog" />
-          </Link>
-          <Link to="/contact#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className="flex items-center gap-2 rounded-full px-4 py-2 font-semibold text-slate-700 transition hover:bg-cyan-50 hover:text-cyan-700">
+          </NavLink>
+          <NavLink to="/contact#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
             <MdEmail />
             <FormattedMessage id="nav.contact" />
-          </Link>
+          </NavLink>
           <div className="flex items-center gap-3 pt-2 md:pt-0">
             <LanguageSwitcher />
             <SoundToggle />

@@ -8,16 +8,17 @@ import Transport from './pages/Transport';
 import Blog from './pages/Blog';
 import ServiceDetails from './pages/ServiceDetails';
 import AdminTransport from './pages/AdminTransport';
+import PlanMyDay from './pages/PlanMyDay';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToHash from './components/ScrollToHash';
 import OceanShaderCanvas from './components/ui/OceanShaderCanvas';
-import { StoryProvider } from './contexts/StoryContext';
+import { PlannerProvider } from './contexts/PlannerContext';
 
 const App = () => {
   return (
-    <StoryProvider>
+    <PlannerProvider>
       <Router>
         <div className="flex flex-col min-h-screen">
           {/* Fixed WebGL Ocean Shader Background */}
@@ -28,6 +29,7 @@ const App = () => {
           <main id="top" className="flex-grow relative z-10">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/plan" element={<PlanMyDay />} />
               <Route path="/tours" element={<Tours />} />
               <Route path="/transport" element={<Transport />} />
               <Route path="/blog" element={<Blog />} />
@@ -40,7 +42,7 @@ const App = () => {
           <Footer />
         </div>
       </Router>
-    </StoryProvider>
+    </PlannerProvider>
   );
 };
 

@@ -1,0 +1,94 @@
+import React, { useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { usePlanner } from '../contexts/PlannerContext';
+import { usePlannerCopy } from '../planner/usePlannerCopy';
+import { useI18n } from '../contexts/I18nContext';
+import { PlannerIntro } from '../components/planner/PlannerIntro';
+import { QuestionStep } from '../components/planner/QuestionStep';
+import { PlanResult } from '../components/planner/PlanResult';
+import { ProfileChips } from '../components/planner/ProfileChips';
+import FABWhatsApp from '../components/FABWhatsApp';
+import { useBrand } from '../contexts/BrandContext';
+
+const PlanMyDay: React.FC = () => {
+  const { stage, progress, steps, stepIndex, loading } = usePlanner();
+  const copy = usePlannerCopy();
+  const { locale } = useI18n();
+  const { brandSettings } = useBrand();
+
+  useEffect(() => {
+    const previous = document.title;
+    document.title =
+      locale === 'es'
+        ? 'Planea mi Día · Excursiones en Punta Cana'
+        : 'Plan My Day · Punta Cana Excursions';
+    return () => {
+      document.title = previous;
+    };
+  }, [locale]);
+
+  // Keep the current question in view when the flow advances.
+  useEffect(() => {
+    if (stage === 'questions') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [stage, stepIndex]);
+
+  return (
+    <div className="planner relative min-h-screen px-4 py-12 sm:py-16 md:px-8">
+      <FABWhatsApp phoneNumber={brandSettings.phoneNumber} />
+
+      {/* Ambient light behind the glass */}
+      <div
+        className="planner-glow left-[-10%] top-24 h-[28rem] w-[28rem]"
+        style={{ background: 'radial-gradient(circle, rgba(13,148,136,.55), transparent 65%)' }}
+      />
+      <div
+        className="planner-glow bottom-10 right-[-8%] h-[24rem] w-[24rem]"
+        style={{ background: 'radial-gradient(circle, rgba(251,191,36,.4), transparent 65%)' }}
+      />
+
+      <div className="relative mx-auto w-full max-w-5xl">
+        {/* Progress rail — only while answering */}
+        {stage === 'questions' && (
+          <div className="mb-6 space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-serif text-lg font-bold text-white/90">{copy.tab}</span>
+              <span className="text-[0.68rem] font-bold uppercase tracking-[0.18em] text-slate-400">
+                {copy.ui.stepOf(stepIndex + 1, steps.length)}
+              </span>
+            </div>
+            <div className="planner-rail">
+              <div className="planner-rail-fill" style={{ width: `${progress * 100}%` }} />
+            </div>
+            <ProfileChips compact />
+          </div>
+        )}
+
+        <AnimatePresence mode="wait">
+          {stage === 'intro' && <PlannerIntro key="intro" />}
+          {stage === 'questions' && <QuestionStep key={`step-${stepIndex}`} />}
+          {stage === 'result' && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <PlanResult />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {loading && stage === 'intro' && (
+          <p className="mt-6 text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            {copy.result.building}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PlanMyDay;
