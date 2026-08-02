@@ -7,7 +7,7 @@
  * complete in both languages.
  */
 const en = {
-  tab: 'Plan My Day',
+  tab: 'Plan',
   hero: {
     eyebrow: 'Personal day planner',
     title: 'Tell us who you are.\nWe design the day.',
@@ -295,7 +295,7 @@ const en = {
 type CopyShape = typeof en;
 
 const es: CopyShape = {
-  tab: 'Planea mi Día',
+  tab: 'Planea',
   hero: {
     eyebrow: 'Planificador personal',
     title: 'Cuéntanos quién eres.\nDiseñamos el día.',

@@ -38,15 +38,19 @@ const PlanMyDay: React.FC = () => {
     <div className="planner relative min-h-screen px-4 py-12 sm:py-16 md:px-8">
       <FABWhatsApp phoneNumber={brandSettings.phoneNumber} />
 
-      {/* Ambient light behind the glass */}
-      <div
-        className="planner-glow left-[-10%] top-24 h-[28rem] w-[28rem]"
-        style={{ background: 'radial-gradient(circle, rgba(13,148,136,.55), transparent 65%)' }}
-      />
-      <div
-        className="planner-glow bottom-10 right-[-8%] h-[24rem] w-[24rem]"
-        style={{ background: 'radial-gradient(circle, rgba(251,191,36,.4), transparent 65%)' }}
-      />
+      {/* Ambient light behind the glass. The blobs deliberately bleed past the
+          page edges, so they live in a clipping wrapper — otherwise they widen
+          the document and summon a horizontal scrollbar. */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div
+          className="planner-glow left-[-10%] top-24 h-[28rem] w-[28rem]"
+          style={{ background: 'radial-gradient(circle, rgba(13,148,136,.55), transparent 65%)' }}
+        />
+        <div
+          className="planner-glow bottom-10 right-[-8%] h-[24rem] w-[24rem]"
+          style={{ background: 'radial-gradient(circle, rgba(251,191,36,.4), transparent 65%)' }}
+        />
+      </div>
 
       <div className="relative mx-auto w-full max-w-5xl">
         {/* Progress rail — only while answering */}

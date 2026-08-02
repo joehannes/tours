@@ -24,6 +24,15 @@ html {
   background: transparent !important;
 }
 
+/* Decorative blobs, swaying cards and rotated badges all reach slightly past
+   the layout. None of them are content, so clip the overflow instead of
+   letting it produce a horizontal scrollbar. `clip` (not `hidden`) keeps the
+   viewport as the scroll container, so the sticky header still sticks. */
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   min-height: 100vh;
   font-family: 'Poppins', 'Space Grotesk', sans-serif;

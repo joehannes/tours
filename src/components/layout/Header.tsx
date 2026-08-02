@@ -76,7 +76,7 @@ const Header: React.FC = () => {
             }
           >
             <HiSparkles className="h-4 w-4" />
-            <FormattedMessage id="nav.plan" defaultMessage="Plan My Day" />
+            <FormattedMessage id="nav.plan" defaultMessage="Plan" />
           </NavLink>
 
           <NavLink to="/tours#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
