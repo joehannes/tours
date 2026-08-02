@@ -1,0 +1,45 @@
+{
+  "routes": [
+    {
+      "routePath": "/api/data",
+      "mountPath": "/api",
+      "method": "",
+      "module": [
+        "api/data.ts:onRequest"
+      ]
+    },
+    {
+      "routePath": "/api/upload",
+      "mountPath": "/api",
+      "method": "",
+      "module": [
+        "api/upload.ts:onRequest"
+      ]
+    },
+    {
+      "routePath": "/blog",
+      "mountPath": "/",
+      "method": "",
+      "module": [
+        "blog.ts:onRequest"
+      ]
+    },
+    {
+      "routePath": "/init-data",
+      "mountPath": "/",
+      "method": "",
+      "module": [
+        "init-data.ts:onRequest"
+      ]
+    },
+    {
+      "routePath": "/",
+      "mountPath": "/",
+      "method": "",
+      "middleware": [
+        "_middleware.ts:onRequest"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}

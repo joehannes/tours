@@ -270,8 +270,8 @@ export const OceanShaderCanvas: React.FC = () => {
   return (
     <div
       id="ocean-shader-bg"
-      className="fixed inset-0 pointer-events-none -z-50 overflow-hidden bg-[#04131D]"
-      style={{ zIndex: -50 }}
+      className="fixed inset-0 pointer-events-none overflow-hidden bg-[#04131D]"
+      style={{ zIndex: -1 }}
     >
       <canvas
         ref={canvasRef}

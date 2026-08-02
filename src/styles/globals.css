@@ -21,17 +21,17 @@
 }
 
 html {
-  background: linear-gradient(180deg, #fdf7eb 0%, #e9f5f9 48%, #e8fafb 100%);
+  background: transparent !important;
 }
 
 body {
   min-height: 100vh;
   font-family: 'Poppins', 'Space Grotesk', sans-serif;
   color: var(--ink);
-  background-image:
-    radial-gradient(circle at 14% 15%, rgba(255, 218, 148, 0.18), transparent 24%),
-    radial-gradient(circle at 88% 10%, rgba(60, 202, 177, 0.12), transparent 18%),
-    linear-gradient(180deg, rgba(255, 250, 244, 1), rgba(232, 250, 255, 1) 42%, rgba(229, 250, 254, 1) 100%);
+  background:
+    radial-gradient(circle at 14% 15%, rgba(255, 218, 148, 0.08), transparent 24%),
+    radial-gradient(circle at 88% 10%, rgba(60, 202, 177, 0.08), transparent 18%),
+    linear-gradient(180deg, rgba(255, 250, 244, 0.25) 0%, rgba(232, 250, 255, 0.2) 42%, rgba(229, 250, 254, 0.25) 100%);
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -41,8 +41,8 @@ body::before {
   position: fixed;
   inset: 0;
   background-image: url('/imgs/tours/tropical_pattern.png');
-  opacity: 0.04;
-  z-index: -1;
+  opacity: 0.02;
+  z-index: -2;
   pointer-events: none;
 }
 
@@ -58,7 +58,7 @@ body::before {
   background-image:
     radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.16), transparent 18%),
     radial-gradient(circle at 82% 12%, rgba(255, 255, 255, 0.1), transparent 16%);
-  opacity: 0.7;
+  opacity: 0.4;
   pointer-events: none;
 }
 
@@ -140,31 +140,18 @@ button {
 .menu-logo-icon {
 }
 
-.shore-section {
-  background: linear-gradient(135deg, rgba(255, 250, 242, 0.92), rgba(255, 238, 220, 0.88) 50%, rgba(255, 252, 248, 0.94));
-  backdrop-filter: blur(8px);
-}
-
-.cove-section {
-  background: linear-gradient(135deg, rgba(207, 255, 251, 0.92), rgba(184, 245, 238, 0.88) 48%, rgba(242, 255, 254, 0.94));
-  backdrop-filter: blur(8px);
-}
-
-.lagoon-section {
-  background: linear-gradient(135deg, rgba(224, 254, 255, 0.92), rgba(194, 248, 252, 0.88) 46%, rgba(244, 255, 255, 0.94));
-  backdrop-filter: blur(8px);
-}
-
-.bay-section {
-  background: linear-gradient(135deg, rgba(222, 245, 255, 0.92), rgba(194, 243, 254, 0.88) 50%, rgba(255, 247, 234, 0.92));
-  backdrop-filter: blur(8px);
+.shore-section, .cove-section, .lagoon-section, .bay-section {
+  background: rgba(248, 245, 239, 0.25) !important;
+  backdrop-filter: blur(6px) saturate(110%);
+  -webkit-backdrop-filter: blur(6px) saturate(110%);
 }
 
 .sunset-section {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #085d6f 0%, #0d8a8a 32%, #118b8a 64%, #f8b574 100%);
-  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(135deg, rgba(8, 93, 111, 0.65) 0%, rgba(13, 138, 138, 0.55) 32%, rgba(17, 139, 138, 0.65) 64%, rgba(248, 181, 116, 0.55) 100%) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .sunset-section::before,
@@ -174,8 +161,8 @@ button {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(circle at 12% 13%, rgba(255, 255, 255, 0.28), transparent 26%),
-              radial-gradient(circle at 84% 76%, rgba(255, 220, 140, 0.28), transparent 32%),
+  background: radial-gradient(circle at 12% 13%, rgba(255, 255, 255, 0.2), transparent 26%),
+              radial-gradient(circle at 84% 76%, rgba(255, 220, 140, 0.2), transparent 32%),
               radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.04), transparent 60%);
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1);
 }
@@ -183,12 +170,15 @@ button {
 .reef-section {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(140deg, #0a3e48 0%, #0d717a 36%, #1a9f98 72%, #2db3a8 100%);
-  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(140deg, rgba(10, 62, 72, 0.65) 0%, rgba(13, 113, 122, 0.55) 36%, rgba(26, 159, 152, 0.6) 72%, rgba(45, 179, 168, 0.65) 100%) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .dawn-section {
-  background: linear-gradient(135deg, rgba(255, 252, 244, 0.98), rgba(231, 255, 251, 0.96) 54%, rgba(255, 238, 220, 0.94));
+  background: linear-gradient(135deg, rgba(255, 252, 244, 0.35), rgba(231, 255, 251, 0.3) 54%, rgba(255, 238, 220, 0.35)) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .section-icon {

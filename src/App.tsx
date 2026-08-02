@@ -17,7 +17,7 @@ import OceanShaderCanvas from './components/ui/OceanShaderCanvas';
 const App = () => {
   return (
     <Router>
-      <div className="relative flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen">
         {/* Fixed WebGL Ocean Shader Background */}
         <OceanShaderCanvas />
 
