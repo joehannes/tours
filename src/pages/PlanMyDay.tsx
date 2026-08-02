@@ -27,11 +27,11 @@ const PlanMyDay: React.FC = () => {
     };
   }, [locale]);
 
-  // Keep the current question in view when the flow advances.
+  // Every step — and the finished plan — starts at the top. Without this a
+  // guest who pressed the button near the bottom of a long card sees nothing
+  // move and assumes it did not work.
   useEffect(() => {
-    if (stage === 'questions') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [stage, stepIndex]);
 
   return (

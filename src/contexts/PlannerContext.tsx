@@ -43,6 +43,8 @@ interface PlannerContextValue {
   banned: string[];
   addTour: (key: string) => void;
   removeTour: (key: string) => void;
+  /** Most recently hand-added tour, so the UI can point at it. */
+  lastAdded: string | null;
   addDay: () => void;
   removeDay: () => void;
   maxDays: number;
@@ -80,6 +82,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [stepIndex, setStepIndex] = useState(0);
   const [pinned, setPinned] = useState<string[]>([]);
   const [banned, setBanned] = useState<string[]>([]);
+  const [lastAdded, setLastAdded] = useState<string | null>(null);
   const [catalogue, setCatalogue] = useState<CatalogueEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
@@ -198,17 +201,20 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setStepIndex(0);
     setPinned([]);
     setBanned([]);
+    setLastAdded(null);
     setStage('questions');
   }, []);
 
   const addTour = useCallback((key: string) => {
     setBanned((current) => current.filter((item) => item !== key));
     setPinned((current) => (current.includes(key) ? current : [...current, key]));
+    setLastAdded(key);
   }, []);
 
   const removeTour = useCallback((key: string) => {
     setPinned((current) => current.filter((item) => item !== key));
     setBanned((current) => (current.includes(key) ? current : [...current, key]));
+    setLastAdded((current) => (current === key ? null : current));
   }, []);
 
   const plan = useMemo(() => {
@@ -266,6 +272,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     banned,
     addTour,
     removeTour,
+    lastAdded,
     addDay,
     removeDay,
     maxDays: MAX_PLAN_DAYS,

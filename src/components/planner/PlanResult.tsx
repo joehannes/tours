@@ -28,6 +28,7 @@ export const PlanResult: React.FC = () => {
     loading,
     removeTour,
     addTour,
+    lastAdded,
     addDay,
     removeDay,
     maxDays,
@@ -235,6 +236,7 @@ export const PlanResult: React.FC = () => {
                   key={item.entry.profile.key}
                   item={item}
                   index={index}
+                  highlight={lastAdded === item.entry.profile.key}
                   onRemove={() => removeTour(item.entry.profile.key)}
                 />
               ))}

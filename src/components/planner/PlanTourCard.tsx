@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { HiCheckCircle, HiExclamation, HiTrash, HiArrowRight } from 'react-icons/hi';
 import { motion } from 'framer-motion';
@@ -10,6 +10,8 @@ interface PlanTourCardProps {
   item: PlanItem;
   index: number;
   onRemove: () => void;
+  /** Just added by hand — bring it into view so the click has a visible effect. */
+  highlight?: boolean;
 }
 
 const SLOT_ACCENT: Record<string, string> = {
@@ -19,16 +21,32 @@ const SLOT_ACCENT: Record<string, string> = {
   evening: 'from-fuchsia-400/90 to-indigo-400/90',
 };
 
-export const PlanTourCard: React.FC<PlanTourCardProps> = ({ item, index, onRemove }) => {
+export const PlanTourCard: React.FC<PlanTourCardProps> = ({
+  item,
+  index,
+  onRemove,
+  highlight = false,
+}) => {
   const copy = usePlannerCopy();
   const { tour, profile: tourProfile, slug } = item.entry;
+  const cardRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const node = cardRef.current;
+    // Never let a nice-to-have scroll take the plan down with it.
+    if (!highlight || !node || typeof node.scrollIntoView !== 'function') return;
+    node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [highlight]);
 
   return (
     <motion.article
       initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-      className="planner-panel overflow-hidden"
+      ref={cardRef}
+      className={`planner-panel overflow-hidden ${
+        highlight ? 'ring-2 ring-teal-300/80 shadow-[0_0_60px_rgba(45,212,191,.35)]' : ''
+      }`}
       onMouseEnter={() => playHoverFx()}
     >
       <div className="grid md:grid-cols-[15rem_1fr] lg:grid-cols-[18rem_1fr]">
