@@ -517,7 +517,13 @@ export const buildPlan = (
 
   // ── 2. Fill the remaining room around them ───────────────────────────────
   buckets.forEach((bucket) => {
-    while (bucket.items.length < targetPerDay) {
+    // A hand-picked excursion adds to the day rather than eating the slot the
+    // guest asked for: one pick plus "one signature experience" means two, as
+    // long as the clock and the per-day ceiling still allow it.
+    const handPicked = bucket.items.filter((item) => item.pinned).length;
+    const target = Math.min(MAX_ITEMS_PER_DAY, targetPerDay + handPicked);
+
+    while (bucket.items.length < target) {
       const ranked = available
         .filter((item) => !usedKeys.has(item.entry.profile.key))
         .filter((item) => !banned.includes(item.entry.profile.key))
@@ -554,8 +560,9 @@ export const buildPlan = (
   const days: PlanDay[] = buckets.map((bucket, index) => {
     const items = [...bucket.items].sort((a, b) => SLOT_ORDER[a.slot] - SLOT_ORDER[b.slot]);
     // Explain a short day rather than letting excursions seem to vanish.
-    const squeezed =
-      items.length < targetPerDay && items.some((item) => item.pinned) && items.length > 0;
+    const handPicked = items.filter((item) => item.pinned).length;
+    const target = Math.min(MAX_ITEMS_PER_DAY, targetPerDay + handPicked);
+    const squeezed = items.length > 0 && handPicked > 0 && items.length < target;
     return {
       index: index + 1,
       items,
