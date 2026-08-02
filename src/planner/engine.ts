@@ -349,10 +349,17 @@ export const scoreTour = (
 
 interface DayState {
   load: number;
+  count: number;
   hasEvening: boolean;
   heavy: boolean;
   groups: Set<string>;
 }
+
+/**
+ * Nobody enjoys four pickups in one day. Three is already a lot, and the
+ * time-based capacity below usually stops well before that.
+ */
+const MAX_ITEMS_PER_DAY = 3;
 
 /**
  * Share of a day's daylight an excursion consumes. Derived from the advertised
@@ -366,6 +373,11 @@ export const daytimeLoad = (tourProfile: TourProfile): number =>
 const isHeavy = (tourProfile: TourProfile) => tourProfile.durationHours >= 8;
 
 const fitsDay = (tourProfile: TourProfile, state: DayState): boolean => {
+  if (state.count >= MAX_ITEMS_PER_DAY) return false;
+  // Two excursions of the same kind on one day is a wasted day — two boat
+  // crossings, two off-road trips, two clubs. Hard rule, not a preference.
+  if (state.groups.has(tourProfile.categoryGroup)) return false;
+
   if (tourProfile.slot === 'evening') {
     return !state.hasEvening && !state.heavy;
   }
@@ -378,13 +390,26 @@ const SLOT_ORDER: Record<DaySlot, number> = { full: 0, half: 1, short: 2, evenin
 
 const slotLabel = (slot: DaySlot, copy: PlannerCopy) => copy.slots[slot];
 
+export interface PlanOptions {
+  /** Tours the guest added by hand. They always land in the plan. */
+  pinned?: string[];
+  /** Tours the guest removed. Never auto-picked again, but still offerable. */
+  banned?: string[];
+}
+
+/** Hard ceiling on how far a plan may grow to host hand-picked excursions. */
+export const MAX_PLAN_DAYS = 7;
+
 export const buildPlan = (
   catalogue: CatalogueEntry[],
   profile: TravelProfile,
   copy: PlannerCopy,
   locale: string = 'en',
-  locked: string[] = []
+  options: PlanOptions = {}
 ): DayPlan => {
+  const pinned = options.pinned ?? [];
+  const banned = options.banned ?? [];
+
   const scored = catalogue
     .map((entry) => scoreTour(entry, profile, copy))
     .sort((a, b) => b.score - a.score);
@@ -396,68 +421,117 @@ export const buildPlan = (
 
   const heads = Math.max(1, profile.adults + profile.children);
   const cap = budgetCap(profile.budget);
-  const targetPerDay = DAY_TARGET[profile.dayShape ?? 'balanced'] ?? 2;
-  const totalDays = clamp(profile.days || 1, 1, 5);
+  const targetPerDay = Math.min(MAX_ITEMS_PER_DAY, DAY_TARGET[profile.dayShape ?? 'balanced'] ?? 2);
+  const requestedDays = clamp(profile.days || 1, 1, MAX_PLAN_DAYS);
 
   const usedKeys = new Set<string>();
   const usedGroups = new Map<string, number>();
-  const days: PlanDay[] = [];
 
-  // Anything the guest explicitly pinned is placed first.
-  const lockedItems = locked
-    .map((key) => available.find((item) => item.entry.profile.key === key))
-    .filter(Boolean) as ScoredTour[];
+  interface DayBucket {
+    state: DayState;
+    items: PlanItem[];
+    total: number;
+  }
 
-  const conflictsWithPlan = (item: ScoredTour) => {
-    const conflicts = item.entry.profile.conflicts ?? [];
-    if (conflicts.some((key) => usedKeys.has(key))) return true;
-    return Array.from(usedKeys).some((key) => {
-      const other = available.find((candidate) => candidate.entry.profile.key === key);
-      return (other?.entry.profile.conflicts ?? []).includes(item.entry.profile.key);
-    });
+  const emptyState = (): DayState => ({
+    load: 0,
+    count: 0,
+    hasEvening: false,
+    heavy: false,
+    groups: new Set<string>(),
+  });
+
+  const buckets: DayBucket[] = Array.from({ length: requestedDays }, () => ({
+    state: emptyState(),
+    items: [],
+    total: 0,
+  }));
+
+  const place = (bucket: DayBucket, item: ScoredTour, byGuest: boolean) => {
+    const slot = item.entry.profile.slot;
+    bucket.items.push({ ...item, slot, slotLabel: slotLabel(slot, copy), pinned: byGuest });
+    usedKeys.add(item.entry.profile.key);
+    usedGroups.set(
+      item.entry.profile.categoryGroup,
+      (usedGroups.get(item.entry.profile.categoryGroup) ?? 0) + 1
+    );
+    bucket.state.groups.add(item.entry.profile.categoryGroup);
+    bucket.state.load += daytimeLoad(item.entry.profile);
+    bucket.state.count += 1;
+    if (slot === 'evening') bucket.state.hasEvening = true;
+    if (isHeavy(item.entry.profile)) bucket.state.heavy = true;
+    bucket.total += item.pricing.total;
   };
 
-  for (let dayIndex = 0; dayIndex < totalDays; dayIndex += 1) {
-    const state: DayState = { load: 0, hasEvening: false, heavy: false, groups: new Set() };
-    const items: PlanItem[] = [];
-    let dayTotal = 0;
+  const conflictsWith = (item: ScoredTour, key: string) => {
+    const other = available.find((candidate) => candidate.entry.profile.key === key);
+    return (
+      (item.entry.profile.conflicts ?? []).includes(key) ||
+      (other?.entry.profile.conflicts ?? []).includes(item.entry.profile.key)
+    );
+  };
 
-    const place = (item: ScoredTour) => {
-      const slot = item.entry.profile.slot;
-      items.push({ ...item, slot, slotLabel: slotLabel(slot, copy) });
-      usedKeys.add(item.entry.profile.key);
-      usedGroups.set(
-        item.entry.profile.categoryGroup,
-        (usedGroups.get(item.entry.profile.categoryGroup) ?? 0) + 1
-      );
-      state.groups.add(item.entry.profile.categoryGroup);
-      state.load += daytimeLoad(item.entry.profile);
-      if (slot === 'evening') state.hasEvening = true;
-      if (isHeavy(item.entry.profile)) state.heavy = true;
-      dayTotal += item.pricing.total;
-    };
+  const conflictsWithPlan = (item: ScoredTour) =>
+    Array.from(usedKeys).some((key) => conflictsWith(item, key));
 
-    // Pinned picks go into the first day that can hold them.
-    lockedItems.forEach((item) => {
-      if (usedKeys.has(item.entry.profile.key)) return;
-      if (!fitsDay(item.entry.profile, state)) return;
-      if (conflictsWithPlan(item)) return;
-      place(item);
+  // ── 1. Hand-picked excursions go in first ────────────────────────────────
+  // They ignore the "how many per day" preference (the guest asked for them by
+  // name) but still respect the clock, and the plan grows a day rather than
+  // dropping one silently.
+  pinned.forEach((key) => {
+    const item = available.find((candidate) => candidate.entry.profile.key === key);
+    if (!item || usedKeys.has(key)) return;
+
+    // A newer pick wins over an older one it cannot coexist with — picking the
+    // lobster Saona should swap out the classic Saona, not be ignored.
+    buckets.forEach((bucket) => {
+      const kept = bucket.items.filter((existing) => !conflictsWith(item, existing.entry.profile.key));
+      if (kept.length !== bucket.items.length) {
+        bucket.items
+          .filter((existing) => conflictsWith(item, existing.entry.profile.key))
+          .forEach((dropped) => usedKeys.delete(dropped.entry.profile.key));
+        bucket.items = kept;
+        bucket.total = kept.reduce((sum, entry) => sum + entry.pricing.total, 0);
+        bucket.state = {
+          load: kept.reduce((sum, entry) => sum + daytimeLoad(entry.entry.profile), 0),
+          count: kept.length,
+          hasEvening: kept.some((entry) => entry.slot === 'evening'),
+          heavy: kept.some((entry) => isHeavy(entry.entry.profile)),
+          groups: new Set(kept.map((entry) => entry.entry.profile.categoryGroup)),
+        };
+      }
     });
 
-    while (items.length < targetPerDay) {
+    const home = buckets.find((bucket) => fitsDay(item.entry.profile, bucket.state));
+    if (home) {
+      place(home, item, true);
+      return;
+    }
+
+    if (buckets.length < MAX_PLAN_DAYS) {
+      const extraDay: DayBucket = { state: emptyState(), items: [], total: 0 };
+      buckets.push(extraDay);
+      place(extraDay, item, true);
+    }
+  });
+
+  // ── 2. Fill the remaining room around them ───────────────────────────────
+  buckets.forEach((bucket) => {
+    while (bucket.items.length < targetPerDay) {
       const ranked = available
         .filter((item) => !usedKeys.has(item.entry.profile.key))
-        .filter((item) => fitsDay(item.entry.profile, state))
+        .filter((item) => !banned.includes(item.entry.profile.key))
+        .filter((item) => fitsDay(item.entry.profile, bucket.state))
         .filter((item) => !conflictsWithPlan(item))
         .map((item) => {
           let adjusted = item.score;
+          // Same-day repeats are already impossible; this keeps variety across
+          // the whole plan.
           const group = item.entry.profile.categoryGroup;
-          if (state.groups.has(group)) adjusted -= 30;
-          else if ((usedGroups.get(group) ?? 0) > 0) adjusted -= 18;
+          if ((usedGroups.get(group) ?? 0) > 0) adjusted -= 18;
           // Keep the day inside the stated budget where possible.
           if (cap !== null) {
-            const projected = (dayTotal + item.pricing.total) / heads;
+            const projected = (bucket.total + item.pricing.total) / heads;
             if (projected > cap) adjusted -= clamp((projected / cap - 1) * 70, 0, 45);
           }
           return { item, adjusted };
@@ -469,23 +543,29 @@ export const buildPlan = (
       if (!next || next.adjusted < 12) break;
       // Never blow far past the stated budget just to fill a slot — a day with
       // one great excursion beats a day the guest cannot afford.
-      if (cap !== null && items.length > 0) {
-        const projected = (dayTotal + next.item.pricing.total) / heads;
+      if (cap !== null && bucket.items.length > 0) {
+        const projected = (bucket.total + next.item.pricing.total) / heads;
         if (projected > cap * 1.5) break;
       }
-      place(next.item);
+      place(bucket, next.item, false);
     }
+  });
 
-    items.sort((a, b) => SLOT_ORDER[a.slot] - SLOT_ORDER[b.slot]);
-
-    days.push({
-      index: dayIndex + 1,
+  const days: PlanDay[] = buckets.map((bucket, index) => {
+    const items = [...bucket.items].sort((a, b) => SLOT_ORDER[a.slot] - SLOT_ORDER[b.slot]);
+    // Explain a short day rather than letting excursions seem to vanish.
+    const squeezed =
+      items.length < targetPerDay && items.some((item) => item.pinned) && items.length > 0;
+    return {
+      index: index + 1,
       items,
-      dayTotal,
+      dayTotal: bucket.total,
       activeHours: items.reduce((sum, item) => sum + item.entry.profile.durationHours, 0),
-    });
-  }
+      note: squeezed ? copy.result.dayFull : undefined,
+    };
+  });
 
+  // Removed tours stay on offer — taking one out must never be a one-way door.
   const alternates = available
     .filter((item) => !usedKeys.has(item.entry.profile.key))
     .filter((item) => !conflictsWithPlan(item))
@@ -493,7 +573,7 @@ export const buildPlan = (
 
   const grandTotal = days.reduce((sum, day) => sum + day.dayTotal, 0);
   const perPersonTotal = Math.round(grandTotal / heads);
-  const perPersonPerDay = perPersonTotal / Math.max(1, totalDays);
+  const perPersonPerDay = perPersonTotal / Math.max(1, days.length);
 
   return {
     persona: pickPersona(profile, days, copy),

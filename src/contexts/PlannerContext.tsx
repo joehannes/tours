@@ -4,11 +4,12 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useI18n } from './I18nContext';
 import { usePlannerCopy } from '../planner/usePlannerCopy';
-import { buildPlan } from '../planner/engine';
+import { buildPlan, MAX_PLAN_DAYS } from '../planner/engine';
 import { buildCatalogue, loadPlannerCatalogue } from '../planner/catalogueSource';
 import { defaultsForParty, StepDef, StepId, visibleSteps } from '../planner/questions';
 import { CatalogueEntry, DayPlan, EMPTY_PROFILE, TravelProfile } from '../planner/types';
@@ -42,6 +43,9 @@ interface PlannerContextValue {
   banned: string[];
   addTour: (key: string) => void;
   removeTour: (key: string) => void;
+  addDay: () => void;
+  removeDay: () => void;
+  maxDays: number;
 
   hasProgress: boolean;
 }
@@ -80,12 +84,20 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
 
+  // The last answered index, mirrored in a ref so goNext can read it without
+  // going stale inside the auto-advance timer.
+  const stepIndexRef = useRef(stepIndex);
+  stepIndexRef.current = stepIndex;
+
   // Restore a session in progress.
   useEffect(() => {
     const saved = readPersisted();
     if (saved.profile) setProfile({ ...EMPTY_PROFILE, ...saved.profile });
     if (saved.stage) setStage(saved.stage);
-    if (typeof saved.stepIndex === 'number') setStepIndex(saved.stepIndex);
+    if (typeof saved.stepIndex === 'number') {
+      stepIndexRef.current = saved.stepIndex;
+      setStepIndex(saved.stepIndex);
+    }
     if (Array.isArray(saved.pinned)) setPinned(saved.pinned);
     if (Array.isArray(saved.banned)) setBanned(saved.banned);
     setHydrated(true);
@@ -141,23 +153,28 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const goNext = useCallback(() => {
-    setStepIndex((index) => {
-      if (index >= steps.length - 1) {
-        setStage('result');
-        return index;
-      }
-      return index + 1;
-    });
+    const current = Math.min(stepIndexRef.current, Math.max(0, steps.length - 1));
+    // A state updater must stay pure — switching stage from inside one made
+    // React re-enter the render and swallow the transition to the plan.
+    if (current >= steps.length - 1) {
+      setStage('result');
+      return;
+    }
+    stepIndexRef.current = current + 1;
+    setStepIndex(current + 1);
   }, [steps.length]);
 
   const goBack = useCallback(() => {
-    setStepIndex((index) => Math.max(0, index - 1));
-  }, []);
+    const previous = Math.max(0, Math.min(stepIndexRef.current, steps.length - 1) - 1);
+    stepIndexRef.current = previous;
+    setStepIndex(previous);
+  }, [steps.length]);
 
   const goToStep = useCallback(
     (id: StepId) => {
       const index = steps.findIndex((step) => step.id === id);
       if (index >= 0) {
+        stepIndexRef.current = index;
         setStepIndex(index);
         setStage('questions');
       }
@@ -166,6 +183,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const start = useCallback(() => {
+    stepIndexRef.current = 0;
     setStage('questions');
     setStepIndex(0);
   }, []);
@@ -176,6 +194,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const reset = useCallback(() => {
     setProfile(EMPTY_PROFILE);
+    stepIndexRef.current = 0;
     setStepIndex(0);
     setPinned([]);
     setBanned([]);
@@ -194,9 +213,33 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const plan = useMemo(() => {
     if (catalogue.length === 0) return null;
-    const usable = catalogue.filter((entry) => !banned.includes(entry.profile.key));
-    return buildPlan(usable, profile, copy, locale, pinned);
+    return buildPlan(catalogue, profile, copy, locale, { pinned, banned });
   }, [catalogue, banned, pinned, profile, copy, locale]);
+
+  // Count what is on screen, not what was requested: hand-picked excursions can
+  // have grown the plan already, and the button must always move the number.
+  const visibleDays = plan?.days.length ?? profile.days ?? 1;
+
+  const addDay = useCallback(() => {
+    setProfile((current) => ({ ...current, days: Math.min(MAX_PLAN_DAYS, visibleDays + 1) }));
+  }, [visibleDays]);
+
+  /**
+   * Dropping a day also releases anything pinned to it — otherwise the engine
+   * would grow the plan straight back to host the pick and the button would
+   * look broken.
+   */
+  const removeDay = useCallback(() => {
+    const lastDay = plan?.days[plan.days.length - 1];
+    const strandedPins = (lastDay?.items ?? [])
+      .filter((item) => item.pinned)
+      .map((item) => item.entry.profile.key);
+
+    if (strandedPins.length > 0) {
+      setPinned((current) => current.filter((key) => !strandedPins.includes(key)));
+    }
+    setProfile((current) => ({ ...current, days: Math.max(1, visibleDays - 1) }));
+  }, [plan, visibleDays]);
 
   const progress = steps.length > 0 ? Math.min(1, (stepIndex + 1) / steps.length) : 0;
   const hasProgress = Boolean(profile.partyType);
@@ -223,6 +266,9 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     banned,
     addTour,
     removeTour,
+    addDay,
+    removeDay,
+    maxDays: MAX_PLAN_DAYS,
     hasProgress,
   };
 

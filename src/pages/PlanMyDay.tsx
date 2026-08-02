@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { usePlanner } from '../contexts/PlannerContext';
 import { usePlannerCopy } from '../planner/usePlannerCopy';
 import { useI18n } from '../contexts/I18nContext';
@@ -69,21 +69,26 @@ const PlanMyDay: React.FC = () => {
           </div>
         )}
 
-        <AnimatePresence mode="wait">
-          {stage === 'intro' && <PlannerIntro key="intro" />}
-          {stage === 'questions' && <QuestionStep key={`step-${stepIndex}`} />}
-          {stage === 'result' && (
+        {/* Deliberately no AnimatePresence: with `mode="wait"` a second
+            navigation arriving mid-exit (tap an option, then hit Continue)
+            deadlocks the presence machinery — the outgoing question stays on
+            screen forever while the state has already moved on. Keyed enter
+            animations give the same feel and cannot wedge. */}
+        <div key={`${stage}-${stepIndex}`}>
+          {stage === 'intro' ? (
+            <PlannerIntro />
+          ) : stage === 'questions' ? (
+            <QuestionStep />
+          ) : (
             <motion.div
-              key="result"
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
               <PlanResult />
             </motion.div>
           )}
-        </AnimatePresence>
+        </div>
 
         {loading && stage === 'intro' && (
           <p className="mt-6 text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">

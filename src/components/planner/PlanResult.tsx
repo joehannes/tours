@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import { FaWhatsapp } from 'react-icons/fa';
 import {
   HiChevronDown,
+  HiMinus,
   HiOutlineClock,
+  HiPencilAlt,
   HiPlus,
   HiRefresh,
-  HiPencilAlt,
+  HiShieldCheck,
   HiTruck,
 } from 'react-icons/hi';
 import { usePlanner } from '../../contexts/PlannerContext';
@@ -20,7 +22,19 @@ import { PlanTourCard } from './PlanTourCard';
 import { playClickFx, playHoverFx } from '../../lib/soundEngine';
 
 export const PlanResult: React.FC = () => {
-  const { plan, profile, loading, removeTour, addTour, reset, goToStep, steps } = usePlanner();
+  const {
+    plan,
+    profile,
+    loading,
+    removeTour,
+    addTour,
+    addDay,
+    removeDay,
+    maxDays,
+    reset,
+    goToStep,
+    steps,
+  } = usePlanner();
   const copy = usePlannerCopy();
   const { brandSettings } = useBrand();
   const [showRuledOut, setShowRuledOut] = useState(false);
@@ -143,6 +157,53 @@ export const PlanResult: React.FC = () => {
         </div>
       </section>
 
+      {/* ── Length of the trip ──────────────────────────────────────────── */}
+      <section className="planner-panel flex flex-wrap items-center justify-between gap-4 px-6 py-5 sm:px-9">
+        <div>
+          <div className="text-[0.66rem] font-bold uppercase tracking-[0.18em] text-slate-400">
+            {copy.result.daysLabel}
+          </div>
+          <p className="mt-1 text-sm text-slate-400">{copy.questions.days.hint}</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            aria-label={copy.result.removeDay}
+            title={copy.result.removeDay}
+            disabled={plan.days.length <= 1}
+            onClick={() => {
+              playClickFx();
+              removeDay();
+            }}
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-teal-300/70 hover:bg-teal-400/20 disabled:opacity-30"
+          >
+            <HiMinus className="h-4 w-4" />
+          </button>
+
+          <span className="min-w-[4.5rem] text-center font-serif text-3xl font-bold text-white tabular-nums">
+            {plan.days.length}
+            <span className="ml-1.5 text-sm font-semibold text-slate-400">
+              {copy.questions.days.unit}
+            </span>
+          </span>
+
+          <button
+            type="button"
+            aria-label={copy.result.addDay}
+            title={copy.result.addDay}
+            disabled={plan.days.length >= maxDays}
+            onClick={() => {
+              playClickFx();
+              addDay();
+            }}
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-teal-300/70 hover:bg-teal-400/20 disabled:opacity-30"
+          >
+            <HiPlus className="h-4 w-4" />
+          </button>
+        </div>
+      </section>
+
       {/* ── The days ────────────────────────────────────────────────────── */}
       {plan.days.map((day) => (
         <section key={day.index} className="space-y-4">
@@ -177,6 +238,12 @@ export const PlanResult: React.FC = () => {
                   onRemove={() => removeTour(item.entry.profile.key)}
                 />
               ))}
+
+              {day.note && (
+                <p className="planner-panel-soft px-5 py-3 text-center text-xs text-slate-400">
+                  {day.note}
+                </p>
+              )}
             </div>
           )}
         </section>
@@ -300,6 +367,16 @@ export const PlanResult: React.FC = () => {
         <h3 className="font-serif text-2xl font-bold text-white sm:text-3xl">
           {plan.persona.title} · ${plan.grandTotal} USD
         </h3>
+
+        {/* What actually happens next — no surprise charges, no auto-booking. */}
+        <div className="w-full max-w-2xl rounded-3xl border border-teal-400/25 bg-teal-500/10 px-5 py-4 text-left">
+          <div className="flex items-center gap-2 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-teal-200">
+            <HiShieldCheck className="h-4 w-4" />
+            {copy.result.reviewTitle}
+          </div>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">{copy.result.reviewBody}</p>
+        </div>
+
         <p className="max-w-xl text-sm text-slate-300">{copy.result.bookHint}</p>
 
         <a

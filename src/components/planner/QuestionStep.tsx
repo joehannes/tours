@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { HiArrowLeft, HiArrowRight } from 'react-icons/hi';
 import { usePlanner } from '../../contexts/PlannerContext';
@@ -131,30 +131,57 @@ export const QuestionStep: React.FC = () => {
     ? currentStep.optional || currentStep.isAnswered(profile)
     : false;
 
+  // A pending auto-advance must be cancellable: tapping an option and then
+  // hitting Continue used to fire goNext twice and skip a question.
+  const advanceTimer = useRef<number | null>(null);
+
+  const clearAdvance = useCallback(() => {
+    if (advanceTimer.current !== null) {
+      window.clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearAdvance, [clearAdvance]);
+
+  const advance = useCallback(() => {
+    clearAdvance();
+    goNext();
+  }, [clearAdvance, goNext]);
+
   const handleSelect = useCallback(
     (id: string) => {
       choice?.select(id);
       if (currentStep?.autoAdvance) {
-        window.setTimeout(() => goNext(), 260);
+        clearAdvance();
+        advanceTimer.current = window.setTimeout(() => {
+          advanceTimer.current = null;
+          goNext();
+        }, 260);
       }
     },
-    [choice, currentStep, goNext]
+    [choice, currentStep, goNext, clearAdvance]
   );
 
   // Keyboard: 1–9 picks an option, Enter continues, ← goes back.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
+      const typing = Boolean(target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
 
+      // Enter still advances while typing a date or hotel name; digits do not.
       if (event.key === 'Enter' && canContinue) {
         event.preventDefault();
+        if (typing) (target as HTMLInputElement).blur();
         playClickFx();
-        goNext();
+        advance();
         return;
       }
+      if (typing) return;
+
       if (event.key === 'ArrowLeft' && stepIndex > 0) {
         event.preventDefault();
+        clearAdvance();
         goBack();
         return;
       }
@@ -177,7 +204,7 @@ export const QuestionStep: React.FC = () => {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [canContinue, choice, goBack, goNext, handleSelect, stepId, stepIndex, toggleConstraint, toggleInterest]);
+  }, [advance, canContinue, choice, clearAdvance, goBack, handleSelect, stepId, stepIndex, toggleConstraint, toggleInterest]);
 
   if (!currentStep || !questionCopy) return null;
 
@@ -186,7 +213,6 @@ export const QuestionStep: React.FC = () => {
       key={currentStep.id}
       initial={{ opacity: 0, y: 26 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -18 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
       className="planner-panel px-5 py-7 sm:px-9 sm:py-10"
     >
@@ -372,6 +398,7 @@ export const QuestionStep: React.FC = () => {
           type="button"
           onClick={() => {
             playClickFx();
+            clearAdvance();
             goBack();
           }}
           disabled={stepIndex === 0}
@@ -388,7 +415,7 @@ export const QuestionStep: React.FC = () => {
             type="button"
             onClick={() => {
               playClickFx();
-              goNext();
+              advance();
             }}
             disabled={!canContinue}
             className="planner-cta disabled:cursor-not-allowed disabled:opacity-40"

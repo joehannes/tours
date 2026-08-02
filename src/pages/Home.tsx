@@ -172,7 +172,7 @@ const Home: React.FC = () => {
 
       {/* Call-to-Action Banner: prefer dynamic CTAs from storyData.callToActions */}
       {!storyData ? null : storyData.callToActions && storyData.callToActions.length > 0 ? (
-        <section className="home-section sunset-section px-4 py-20 text-white sm:py-24 md:px-8">
+        <section className="home-section sunset-section wavy-band px-4 py-24 text-white sm:py-28 md:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="mb-6 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
               {storyData.storyTitle || 'Ready for Your Perfect Day in Paradise?'}
@@ -204,7 +204,7 @@ const Home: React.FC = () => {
           </div>
         </section>
       ) : (
-        <section className="home-section sunset-section px-4 py-20 text-white sm:py-24 md:px-8">
+        <section className="home-section sunset-section wavy-band px-4 py-24 text-white sm:py-28 md:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="mb-6 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
               Ready for Your Perfect Day in Paradise?
@@ -248,7 +248,7 @@ const Home: React.FC = () => {
       <TestimonialDisplay locale={locale} />
 
       {/* Why Choose Us Section - Enhanced */}
-      <section className="home-section reef-section px-4 py-20 text-white sm:py-24 md:px-8">
+      <section className="home-section reef-section wavy-band px-4 py-24 text-white sm:py-28 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
             <h2 className="mb-4 font-serif text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">

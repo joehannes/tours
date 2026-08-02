@@ -55,8 +55,67 @@ const apiFetch = async <T>(resource: string, params?: Record<string, string | nu
   return parseJson<T>(response);
 };
 
-export const apiGet = async <T>(resource: string, params?: Record<string, string | number | boolean>): Promise<T> =>
-  apiFetch<T>(resource, params, { method: 'GET' });
+/**
+ * Resources the API serves per language. Mirrors RESOURCE_WITH_LOCALE in
+ * functions/api/data.ts, which decides the same thing on the server.
+ */
+const LOCALIZED_RESOURCES = new Set([
+  'blog',
+  'i18n',
+  'tour',
+  'tours',
+  'transport',
+  'transport-services',
+  'example-tours',
+  'story-elements',
+  'intro-story',
+  'story-nodes',
+  'translations',
+]);
+
+const bundledPath = (resource: string, locale?: string | number | boolean) => {
+  const key = resource.trim().toLowerCase();
+  return LOCALIZED_RESOURCES.has(key) && locale
+    ? `/data/${key}-${String(locale).toLowerCase()}.json`
+    : `/data/${key}.json`;
+};
+
+/**
+ * Every read has a bundled copy in /data. Falling back to it keeps the site
+ * fully populated when the API is unreachable — `vite dev` has no Functions
+ * runtime and answers /api/* with index.html, and production KV can hiccup.
+ */
+const fetchBundled = async <T>(
+  resource: string,
+  params?: Record<string, string | number | boolean>
+): Promise<T | null> => {
+  try {
+    const response = await fetch(bundledPath(resource, params?.locale), { cache: 'no-cache' });
+    if (!response.ok) return null;
+    const body = await response.text();
+    if (!body || body.trimStart().startsWith('<')) return null;
+    return JSON.parse(body) as T;
+  } catch {
+    return null;
+  }
+};
+
+export const apiGet = async <T>(resource: string, params?: Record<string, string | number | boolean>): Promise<T> => {
+  try {
+    return await apiFetch<T>(resource, params, { method: 'GET' });
+  } catch (error) {
+    const bundled = await fetchBundled<T>(resource, params);
+    if (bundled !== null) {
+      // Only chatty on a dev machine; in production a silent, complete page
+      // beats a console full of noise.
+      if (typeof location !== 'undefined' && /^(localhost|127\.|\[::1\])/.test(location.hostname)) {
+        console.info(`[api] ${resource}: no API here, using bundled ${bundledPath(resource, params?.locale)}`);
+      }
+      return bundled;
+    }
+    throw error;
+  }
+};
 
 export const apiPut = async <T>(resource: string, body: unknown, params?: Record<string, string | number | boolean>): Promise<T> => {
   const password = getAdminPassword();

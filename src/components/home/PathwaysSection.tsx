@@ -64,7 +64,7 @@ const PathwaysSection: React.FC = () => {
   return (
     <section
       id="plan-my-day"
-      className="home-section dawn-section relative overflow-hidden px-4 py-20 sm:py-28 md:px-8"
+      className="home-section dawn-section wavy-band relative overflow-hidden px-4 py-24 sm:py-32 md:px-8"
     >
       <div className="parallax-wash parallax-wash-left" />
       <div className="parallax-wash parallax-wash-right" />

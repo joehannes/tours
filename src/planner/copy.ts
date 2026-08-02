@@ -200,6 +200,14 @@ const en = {
     },
     building: 'Building your day…',
     dayTotal: 'Day total',
+    dayFull: 'Your own pick fills this day — anything else would not fit the clock.',
+    daysLabel: 'Days in this plan',
+    addDay: 'Add a day',
+    removeDay: 'Remove the last day',
+    reviewTitle: 'Nothing is booked yet',
+    reviewBody:
+      'Your plan goes to Francisco on WhatsApp. He reads it personally, checks the timings and availability with each operator, and replies to confirm whether the day works as planned — or suggests the fix. A payment link only follows once the plan is confirmed.',
+    addedByYou: 'Added by you',
     grandTotal: 'Plan total',
     perPerson: 'per person',
     budgetOk: 'Inside your budget',
@@ -288,7 +296,8 @@ const en = {
     transport: 'Transport',
     date: 'Preferred start',
     zone: 'Pick-up',
-    closing: 'Can you confirm availability and the final price?',
+    closing:
+      'Could you check that this day is actually feasible, confirm availability and the final price, and then send me the payment link?',
   },
 };
 
@@ -488,6 +497,14 @@ const es: CopyShape = {
     },
     building: 'Armando tu día…',
     dayTotal: 'Total del día',
+    dayFull: 'Tu elección llena este día — cualquier otra cosa no cabría en el reloj.',
+    daysLabel: 'Días en este plan',
+    addDay: 'Añadir un día',
+    removeDay: 'Quitar el último día',
+    reviewTitle: 'Todavía no hay nada reservado',
+    reviewBody:
+      'Tu plan le llega a Francisco por WhatsApp. Él lo revisa personalmente, verifica horarios y disponibilidad con cada operador, y responde para confirmar si el día funciona tal cual — o propone el ajuste. El enlace de pago solo llega cuando el plan está confirmado.',
+    addedByYou: 'Añadido por ti',
     grandTotal: 'Total del plan',
     perPerson: 'por persona',
     budgetOk: 'Dentro de tu presupuesto',
@@ -576,7 +593,8 @@ const es: CopyShape = {
     transport: 'Transporte',
     date: 'Fecha preferida',
     zone: 'Recogida',
-    closing: '¿Puedes confirmar disponibilidad y el precio final?',
+    closing:
+      '¿Puedes revisar si este día es realmente factible, confirmar disponibilidad y el precio final, y luego enviarme el enlace de pago?',
   },
 };
 

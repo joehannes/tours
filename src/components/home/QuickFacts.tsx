@@ -25,8 +25,8 @@ const QuickFacts: React.FC = () => {
   ];
 
   return (
-    <section className="relative z-10 border-y border-white/25 bg-white/45 backdrop-blur-xl">
-      <div className="section-shell grid grid-cols-2 gap-6 py-7 sm:py-8 md:grid-cols-4">
+    <section className="wavy-band relative z-10 bg-white/45 backdrop-blur-xl">
+      <div className="section-shell grid grid-cols-2 gap-6 py-14 sm:py-16 md:grid-cols-4">
         {facts.map((fact) => (
           <div key={fact.label} className="text-center">
             <div className="font-serif text-2xl font-bold text-[#04131D] sm:text-3xl">{fact.value}</div>

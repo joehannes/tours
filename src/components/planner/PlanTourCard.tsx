@@ -48,6 +48,12 @@ export const PlanTourCard: React.FC<PlanTourCardProps> = ({ item, index, onRemov
           >
             {item.slotLabel}
           </span>
+
+          {item.pinned && (
+            <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[0.65rem] font-extrabold uppercase tracking-[0.14em] text-slate-900 shadow-lg">
+              ★ {copy.result.addedByYou}
+            </span>
+          )}
         </div>
 
         {/* Body */}

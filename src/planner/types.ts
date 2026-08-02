@@ -112,6 +112,8 @@ export interface ScoredTour {
 export interface PlanItem extends ScoredTour {
   slot: DaySlot;
   slotLabel: string;
+  /** True when the guest added this one by hand rather than the engine. */
+  pinned: boolean;
 }
 
 export interface PlanDay {
@@ -120,6 +122,8 @@ export interface PlanDay {
   items: PlanItem[];
   dayTotal: number;
   activeHours: number;
+  /** Set when a hand-picked excursion used up the day's remaining time. */
+  note?: string;
 }
 
 export interface TransportPlan {
