@@ -26,7 +26,7 @@ const App = () => {
 
           <ScrollToHash />
           <Header />
-          <main id="top" className="flex-grow relative z-10">
+          <main id="top" className="flex-grow relative z-20">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/plan" element={<PlanMyDay />} />

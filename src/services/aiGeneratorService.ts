@@ -1,4 +1,5 @@
 import { AISettings } from './aiSettingsService';
+import { apiPost } from './apiClient';
 
 export interface BlogGenerationParams {
   povOrigin: string;
@@ -115,22 +116,20 @@ const generateWithGemini = async (config: any, prompt: string, mediaBase64?: str
 const generateWithCloudflare = async (config: any, prompt: string): Promise<string> => {
   if (!config.accountId || !config.apiKey) throw new Error('Cloudflare Account ID or API Token missing');
   
-  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/run/${config.selectedModel}`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      messages: [
-        { role: 'system', content: 'You are a professional travel blogger.' },
-        { role: 'user', content: prompt }
-      ]
-    })
+  const payload = {
+    messages: [
+      { role: 'system', content: 'You are a professional travel blogger.' },
+      { role: 'user', content: prompt }
+    ]
+  };
+
+  const data = await apiPost<any>('cf-ai', {
+    accountId: config.accountId,
+    token: config.apiKey,
+    model: config.selectedModel,
+    payload
   });
 
-  if (!res.ok) throw new Error(`Cloudflare error: ${res.statusText}`);
-  const data = await res.json();
   return data.result?.response || '';
 };
 
