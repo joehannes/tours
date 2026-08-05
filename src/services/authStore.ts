@@ -7,6 +7,9 @@ let adminPassword: string | null = null;
 
 export const setAdminPassword = (password: string) => {
   adminPassword = password;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('authChange'));
+  }
 };
 
 export const getAdminPassword = (): string | null => {
@@ -15,4 +18,7 @@ export const getAdminPassword = (): string | null => {
 
 export const clearAdminPassword = () => {
   adminPassword = null;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('authChange'));
+  }
 };

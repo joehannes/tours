@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { HiMenu, HiX, HiSparkles } from 'react-icons/hi';
@@ -17,7 +17,15 @@ const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const isAdminRoute = location.pathname.startsWith('/admin') && !!getAdminPassword();
+  const [isAuthenticated, setIsAuthenticated] = useState(!!getAdminPassword());
+
+  useEffect(() => {
+    const handleAuthChange = () => setIsAuthenticated(!!getAdminPassword());
+    window.addEventListener('authChange', handleAuthChange);
+    return () => window.removeEventListener('authChange', handleAuthChange);
+  }, []);
+
+  const isAdminRoute = location.pathname.startsWith('/admin') && isAuthenticated;
 
   const handleLogout = () => {
     clearAdminPassword();
