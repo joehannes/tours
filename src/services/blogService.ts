@@ -11,6 +11,8 @@ export interface RawBlogArticle {
   date?: string;
   language?: Locale;
   slug?: string;
+  tags?: string[];
+  visible?: boolean;
 }
 
 export interface BlogArticle {
@@ -21,6 +23,8 @@ export interface BlogArticle {
   date?: string;
   slug: string;
   locale: Locale;
+  tags: string[];
+  visible: boolean;
 }
 
 const getLocalizedValue = (value: unknown, locale: Locale): string => {
@@ -52,6 +56,8 @@ const normalizeBlogArticle = (rawArticle: RawBlogArticle, locale: Locale): BlogA
   const date = rawArticle.date?.trim();
   const id = String(rawArticle.id ?? `${title}-${tour}-${date || 'unknown'}`).trim();
   const slug = rawArticle.slug?.trim() || `${title.toLowerCase().replace(/[^a-z0-9]+/gi, '-')}`.replace(/(^-|-$)/g, '');
+  const tags = Array.isArray(rawArticle.tags) ? rawArticle.tags : [];
+  const visible = rawArticle.visible !== false; // Default to true
 
   if (!title || !post) {
     return null;
@@ -65,6 +71,8 @@ const normalizeBlogArticle = (rawArticle: RawBlogArticle, locale: Locale): BlogA
     date,
     slug: slug || id,
     locale,
+    tags,
+    visible,
   };
 };
 
@@ -133,7 +141,9 @@ export const saveBlogArticle = async (article: BlogArticle, locale: Locale): Pro
       post: article.post,
       date: article.date,
       slug: article.slug,
-      language: locale
+      language: locale,
+      tags: article.tags,
+      visible: article.visible
     };
 
     if (existingIndex >= 0) {
@@ -146,6 +156,41 @@ export const saveBlogArticle = async (article: BlogArticle, locale: Locale): Pro
     return true;
   } catch (error) {
     console.error('[Blog] Failed to save article:', error);
+    return false;
+  }
+};
+
+export const deleteBlogArticle = async (id: string, locale: Locale): Promise<boolean> => {
+  try {
+    const rawArticles = await fetchRawBlogArticles(locale);
+    const existingIndex = rawArticles.findIndex((r: any) => String(r.id) === id);
+    
+    if (existingIndex >= 0) {
+      rawArticles.splice(existingIndex, 1);
+      await apiPut<unknown>('blog', rawArticles, { locale });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[Blog] Failed to delete article:', error);
+    return false;
+  }
+};
+
+export const toggleBlogArticleVisibility = async (id: string, locale: Locale): Promise<boolean> => {
+  try {
+    const rawArticles = await fetchRawBlogArticles(locale);
+    const existingIndex = rawArticles.findIndex((r: any) => String(r.id) === id);
+    
+    if (existingIndex >= 0) {
+      const article = rawArticles[existingIndex] as RawBlogArticle;
+      article.visible = article.visible === false ? true : false;
+      await apiPut<unknown>('blog', rawArticles, { locale });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[Blog] Failed to toggle article visibility:', error);
     return false;
   }
 };

@@ -34,20 +34,18 @@ Additional Context (from voice transcript or notes):
 
 ${params.mediaBase64 ? 'An image is also provided. If your model supports vision, please incorporate details from the image into the story.' : ''}
 
-Output Requirements:
-- A catchy, click-worthy title (First line, starting with #).
-- Engaging introduction.
-- Highlights of the tours, tailored to the specific POV and audience.
-- A strong call to action at the end to book with us.
-- Use formatting (bolding, bullet points) where appropriate.
-- Do not include any meta-commentary like "Here is your blog post". Just output the content.
+Output Requirements (STRICT):
+- Line 1 MUST be the catchy, click-worthy blog post title, prefixed exactly with "# ".
+- Line 2 MUST be a comma-separated list of exactly 3 to 5 relevant tags, prefixed exactly with "Tags: " (e.g., Tags: adventure, culture, beach).
+- Line 3 onwards MUST be the engaging blog post body, fully formatted using standard Markdown (use bolding, bullet points, italics, and headers where appropriate).
+- Do not include any meta-commentary like "Here is your blog post" or "Enjoy reading". Just output the title, tags, and content exactly as requested.
 `;
 };
 
 export const generateBlogPost = async (
   settings: AISettings,
   params: BlogGenerationParams
-): Promise<{ title: string; content: string }> => {
+): Promise<{ title: string; content: string; tags: string[] }> => {
   const provider = settings.activeProvider;
   const prompt = buildPrompt(params);
 
@@ -64,17 +62,57 @@ export const generateBlogPost = async (
       throw new Error('Unknown AI provider');
     }
 
-    // Parse title and content
-    const lines = generatedText.split('\n');
+    // Parse title, tags and content
+    const lines = generatedText.split('\n').map(l => l.trim());
     let title = 'New Blog Post';
-    let content = generatedText;
-
-    if (lines[0].startsWith('#')) {
-      title = lines[0].replace(/^#+\s*/, '').trim();
-      content = lines.slice(1).join('\n').trim();
+    let tags: string[] = [];
+    let contentLines: string[] = [];
+    
+    let lineIdx = 0;
+    
+    // 1. Find Title
+    while (lineIdx < lines.length) {
+      if (lines[lineIdx].startsWith('#')) {
+        title = lines[lineIdx].replace(/^#+\s*/, '');
+        lineIdx++;
+        break;
+      }
+      // If we find tags or content first, assume title is missing and just start taking content
+      if (lines[lineIdx].toLowerCase().startsWith('tags:')) {
+        break;
+      }
+      if (lines[lineIdx] !== '') {
+        title = lines[lineIdx];
+        lineIdx++;
+        break;
+      }
+      lineIdx++;
     }
 
-    return { title, content };
+    // 2. Find Tags
+    while (lineIdx < lines.length) {
+      if (lines[lineIdx].toLowerCase().startsWith('tags:')) {
+        const tagStr = lines[lineIdx].replace(/^tags:\s*/i, '');
+        tags = tagStr.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+        lineIdx++;
+        break;
+      }
+      // If we hit a non-empty line that isn't tags, assume no tags and it's content
+      if (lines[lineIdx] !== '') {
+        break;
+      }
+      lineIdx++;
+    }
+
+    // 3. The rest is content
+    while (lineIdx < lines.length) {
+      contentLines.push(lines[lineIdx]);
+      lineIdx++;
+    }
+
+    const content = contentLines.join('\n').trim();
+
+    return { title, content, tags };
   } catch (error) {
     console.error('Error generating blog post:', error);
     throw error;
