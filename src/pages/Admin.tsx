@@ -79,7 +79,7 @@ const Admin: React.FC = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Admin Dashboard</h1>
             </div>
           </div>
-
+        </div>
 
         {/* Brand Settings Section */}
         {activeSection === 'brand' && (
