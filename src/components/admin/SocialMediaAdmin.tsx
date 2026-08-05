@@ -6,6 +6,8 @@ import {
   SocialMediaAccount,
   SocialMediaVideo
 } from '../../services/socialMediaService';
+import { getSocialApiSettings, saveSocialApiSettings, SocialApiSettings } from '../../services/socialApiSettingsService';
+import { FaSave, FaCheck, FaFacebookSquare } from 'react-icons/fa';
 
 interface SocialMediaAdminProps {
   onSave?: () => void;
@@ -40,13 +42,37 @@ const SocialMediaAdmin: React.FC<SocialMediaAdminProps> = ({ onSave }) => {
     platform: 'instagram' as const,
     title: '',
     url: '',
+    url: '',
     description: ''
   });
+
+  const [apiSettings, setApiSettings] = useState<SocialApiSettings | null>(null);
+  const [savingApi, setSavingApi] = useState(false);
+  const [apiSaveSuccess, setApiSaveSuccess] = useState(false);
+
+  const handleSaveApiSettings = async () => {
+    if (!apiSettings) return;
+    setSavingApi(true);
+    setApiSaveSuccess(false);
+    try {
+      await saveSocialApiSettings(apiSettings);
+      setApiSaveSuccess(true);
+      setTimeout(() => setApiSaveSuccess(false), 3000);
+      onSave?.();
+    } catch (error) {
+      console.error('Failed to save API settings', error);
+    } finally {
+      setSavingApi(false);
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
       const socialData = await getSocialMediaData();
       setData(socialData);
+      
+      const apiSettingsData = await getSocialApiSettings();
+      setApiSettings(apiSettingsData);
     };
     loadData();
   }, []);
@@ -123,6 +149,87 @@ const SocialMediaAdmin: React.FC<SocialMediaAdminProps> = ({ onSave }) => {
   return (
     <div className="w-full space-y-8">
       <h2 className="text-3xl font-bold text-slate-900 mb-6">Social Media Management</h2>
+
+      {/* Social Media API Integrations */}
+      {apiSettings && (
+        <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-8 text-white">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold flex items-center gap-2">
+              <FaFacebookSquare /> Facebook & Instagram API
+            </h3>
+            <button
+              onClick={handleSaveApiSettings}
+              disabled={savingApi}
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
+            >
+              {savingApi ? 'Saving...' : apiSaveSuccess ? <><FaCheck /> Saved</> : <><FaSave /> Save API Settings</>}
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-blue-950/50 rounded-xl p-6">
+            <div className="md:col-span-2">
+              <p className="text-sm text-blue-200 mb-4">
+                Configure your Facebook Developer App to enable automatic publishing of AI generated blogs. You will need a Graph API Long-Lived Token with <code>pages_manage_posts</code> and <code>instagram_content_publish</code> permissions.
+              </p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold mb-2">Facebook App ID</label>
+              <input
+                type="text"
+                value={apiSettings.facebookAppId}
+                onChange={(e) => setApiSettings({ ...apiSettings, facebookAppId: e.target.value })}
+                placeholder="App ID"
+                className="w-full px-4 py-2 bg-blue-800/50 border-2 border-blue-500 rounded-lg text-white focus:outline-none placeholder-blue-300"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">Facebook App Secret</label>
+              <input
+                type="password"
+                value={apiSettings.facebookAppSecret}
+                onChange={(e) => setApiSettings({ ...apiSettings, facebookAppSecret: e.target.value })}
+                placeholder="App Secret"
+                className="w-full px-4 py-2 bg-blue-800/50 border-2 border-blue-500 rounded-lg text-white focus:outline-none placeholder-blue-300"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold mb-2">Graph API Access Token (Long-Lived)</label>
+              <input
+                type="password"
+                value={apiSettings.facebookLongLivedToken}
+                onChange={(e) => setApiSettings({ ...apiSettings, facebookLongLivedToken: e.target.value })}
+                placeholder="EAAB..."
+                className="w-full px-4 py-2 bg-blue-800/50 border-2 border-blue-500 rounded-lg text-white focus:outline-none placeholder-blue-300"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">Facebook Page ID (For publishing)</label>
+              <input
+                type="text"
+                value={apiSettings.selectedFacebookPageId}
+                onChange={(e) => setApiSettings({ ...apiSettings, selectedFacebookPageId: e.target.value })}
+                placeholder="e.g. 1029384756"
+                className="w-full px-4 py-2 bg-blue-800/50 border-2 border-blue-500 rounded-lg text-white focus:outline-none placeholder-blue-300"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">Instagram Business Account ID</label>
+              <input
+                type="text"
+                value={apiSettings.selectedInstagramAccountId}
+                onChange={(e) => setApiSettings({ ...apiSettings, selectedInstagramAccountId: e.target.value })}
+                placeholder="e.g. 17841400000000"
+                className="w-full px-4 py-2 bg-blue-800/50 border-2 border-blue-500 rounded-lg text-white focus:outline-none placeholder-blue-300"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Social Media Accounts Section */}
       <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 text-white">

@@ -125,3 +125,30 @@ export const apiPut = async <T>(resource: string, body: unknown, params?: Record
     headers: password ? { 'X-Admin-Password': password } : undefined,
   });
 };
+
+export const apiPost = async <T>(resource: string, body: unknown, params?: Record<string, string | number | boolean>): Promise<T> => {
+  const password = getAdminPassword();
+  // Using the rawBaseUrl + /api/resource for endpoints like /api/social-publish that are not /api/data
+  const url = import.meta.env.VITE_API_BASE_URL?.trim() 
+    ? `${import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '')}/api/${resource}${buildQueryString(params)}`
+    : `/api/${resource}${buildQueryString(params)}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...(password ? { 'X-Admin-Password': password } : {}),
+    },
+    body: JSON.stringify(body),
+    cache: 'no-cache',
+  });
+
+  if (!response.ok) {
+    const message = `API POST failed for ${resource} with status ${response.status}`;
+    throw new Error(message);
+  }
+
+  const responseText = await response.text();
+  return (responseText ? JSON.parse(responseText) : {}) as T;
+};

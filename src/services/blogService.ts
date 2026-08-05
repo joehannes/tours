@@ -1,4 +1,4 @@
-import { apiGet } from './apiClient';
+import { apiGet, apiPut } from './apiClient';
 
 type Locale = 'en' | 'es';
 
@@ -117,4 +117,35 @@ export const getBlogArticles = async (locale: Locale): Promise<BlogArticle[]> =>
   return rawArticles
     .map((rawArticle) => normalizeBlogArticle(rawArticle as RawBlogArticle, locale))
     .filter((article): article is BlogArticle => article !== null);
+};
+
+export const saveBlogArticle = async (article: BlogArticle, locale: Locale): Promise<boolean> => {
+  try {
+    const rawArticles = await fetchRawBlogArticles(locale);
+    
+    // Check if article with this id already exists, update it or append
+    const existingIndex = rawArticles.findIndex((r: any) => String(r.id) === article.id || r.slug === article.slug);
+    
+    const newRawArticle = {
+      id: article.id,
+      title: article.title,
+      tour: article.tour,
+      post: article.post,
+      date: article.date,
+      slug: article.slug,
+      language: locale
+    };
+
+    if (existingIndex >= 0) {
+      rawArticles[existingIndex] = newRawArticle;
+    } else {
+      rawArticles.unshift(newRawArticle); // prepend new articles
+    }
+
+    await apiPut<unknown>('blog', rawArticles, { locale });
+    return true;
+  } catch (error) {
+    console.error('[Blog] Failed to save article:', error);
+    return false;
+  }
 };

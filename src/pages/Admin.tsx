@@ -6,7 +6,9 @@ import ServiceAdminPanel from '../components/admin/ServiceAdminPanel';
 import TikTokAdmin from '../components/admin/TikTokAdmin';
 import SocialMediaAdmin from '../components/admin/SocialMediaAdmin';
 import StoryAdmin from '../components/admin/StoryAdmin';
-import { FaVideo, FaShareAlt, FaBook } from 'react-icons/fa';
+import AIAssistantAdmin from '../components/admin/AIAssistantAdmin';
+import AIBlogGenAdmin from '../components/admin/AIBlogGenAdmin';
+import { FaVideo, FaShareAlt, FaBook, FaRobot, FaMagic } from 'react-icons/fa';
 
 const Admin: React.FC = () => {
   const { locale } = useI18n();
@@ -21,7 +23,7 @@ const Admin: React.FC = () => {
   const [editingBrand, setEditingBrand] = useState(false);
   const [uploadingIcon, setUploadingIcon] = useState(false);
   const [tours, setTours] = useState<Tour[]>([]);
-  const [activeSection, setActiveSection] = useState<'brand' | 'tours' | 'transport' | 'story' | 'tiktok' | 'social'>('brand');
+  const [activeSection, setActiveSection] = useState<'brand' | 'tours' | 'transport' | 'story' | 'tiktok' | 'social' | 'aiSettings' | 'aiBlogGen'>('brand');
 
   useEffect(() => {
     const fetchBrand = async () => {
@@ -128,13 +130,33 @@ const Admin: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveSection('social')}
-              className={`px-4 py-3 rounded-lg font-semibold transition ${
+              className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
                 activeSection === 'social'
                   ? 'bg-teal-600 text-white'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              Social
+              <FaShareAlt /> <span>Social</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('aiSettings')}
+              className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
+                activeSection === 'aiSettings'
+                  ? 'bg-teal-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <FaRobot /> <span>AI Config</span>
+            </button>
+            <button
+              onClick={() => setActiveSection('aiBlogGen')}
+              className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
+                activeSection === 'aiBlogGen'
+                  ? 'bg-teal-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <FaMagic /> <span>AI Blog Gen</span>
             </button>
           </div>
         </div>
@@ -303,6 +325,20 @@ const Admin: React.FC = () => {
               <h2 className="text-2xl font-bold text-slate-900">Social Media Management</h2>
             </div>
             <SocialMediaAdmin />
+          </div>
+        )}
+
+        {/* AI Settings Section */}
+        {activeSection === 'aiSettings' && (
+          <div className="rounded-3xl bg-white p-6 shadow-lg">
+            <AIAssistantAdmin />
+          </div>
+        )}
+
+        {/* AI Blog Gen Section */}
+        {activeSection === 'aiBlogGen' && (
+          <div className="rounded-3xl bg-slate-50 p-6 shadow-lg border border-slate-200">
+            <AIBlogGenAdmin />
           </div>
         )}
       </div>

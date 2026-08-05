@@ -23,7 +23,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ onAuthenticate }) => {
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+		<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
 			<div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
 				<h2 className="mb-4 text-lg font-semibold">Admin login</h2>
 				<form onSubmit={handleSubmit} className="space-y-4">
