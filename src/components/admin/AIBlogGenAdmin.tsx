@@ -130,7 +130,7 @@ const AIBlogGenAdmin: React.FC = () => {
         }
 
         if (autoPost) {
-          await handleSavePost(postData, newPosts.length);
+          await savePostToKV(postData);
           postData.saved = true;
         }
 
@@ -197,7 +197,7 @@ const AIBlogGenAdmin: React.FC = () => {
     }
   };
 
-  const handleSavePost = async (postData: any, index: number) => {
+  const savePostToKV = async (postData: any) => {
     const id = `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
     const enArticle: BlogArticle = {
@@ -220,10 +220,15 @@ const AIBlogGenAdmin: React.FC = () => {
 
     await saveBlogArticle(enArticle, 'en');
     await saveBlogArticle(esArticle, 'es');
+  };
 
+  const handleSavePost = async (postData: any, index: number) => {
+    await savePostToKV(postData);
     setGeneratedPosts(prev => {
       const copy = [...prev];
-      copy[index].saved = true;
+      if (copy[index]) {
+        copy[index].saved = true;
+      }
       return copy;
     });
   };
