@@ -42,7 +42,6 @@ const SocialMediaAdmin: React.FC<SocialMediaAdminProps> = ({ onSave }) => {
     platform: 'instagram' as const,
     title: '',
     url: '',
-    url: '',
     description: ''
   });
 
