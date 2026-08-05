@@ -50,6 +50,7 @@ const JSONBIN_RESOURCE_MAP: Record<string, string | { en: string; es: string }> 
   'brand': 'VITE_JSONBIN_BRAND_BIN_ID',
   'transfer-config': 'VITE_JSONBIN_TRANSFER_BIN_ID',
   'social-media': 'VITE_JSONBIN_SOCIAL_BIN_ID',
+  'social-api-settings': 'VITE_JSONBIN_SOCIAL_API_SETTINGS_BIN_ID',
   'testimonials': 'VITE_JSONBIN_TESTIMONIALS_BIN_ID',
   'blog': { en: 'VITE_JSONBIN_BLOG_EN', es: 'VITE_JSONBIN_BLOG_ES' },
   'tours': { en: 'VITE_JSONBIN_TOURS_EN', es: 'VITE_JSONBIN_TOURS_ES' },

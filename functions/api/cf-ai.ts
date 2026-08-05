@@ -32,10 +32,19 @@ export async function onRequest(context: { request: Request; env: Record<string,
       body: JSON.stringify(payload)
     });
 
-    const cfData = await cfRes.json();
+    const cfText = await cfRes.text();
+    let cfData;
+    try {
+      cfData = JSON.parse(cfText);
+    } catch {
+      cfData = { response: cfText };
+    }
     
     if (!cfRes.ok) {
-      throw new Error(`Cloudflare AI API Error: ${JSON.stringify(cfData)}`);
+      return new Response(JSON.stringify({ error: 'Cloudflare AI Error', details: cfData }), { 
+        status: cfRes.status, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
     }
 
     return new Response(JSON.stringify(cfData), { 
