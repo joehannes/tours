@@ -9,6 +9,7 @@ import StoryAdmin from '../components/admin/StoryAdmin';
 import AIAssistantAdmin from '../components/admin/AIAssistantAdmin';
 import AIBlogGenAdmin from '../components/admin/AIBlogGenAdmin';
 import { FaVideo, FaShareAlt, FaBook, FaRobot, FaMagic } from 'react-icons/fa';
+import { useSearchParams } from 'react-router-dom';
 
 const Admin: React.FC = () => {
   const { locale } = useI18n();
@@ -23,7 +24,8 @@ const Admin: React.FC = () => {
   const [editingBrand, setEditingBrand] = useState(false);
   const [uploadingIcon, setUploadingIcon] = useState(false);
   const [tours, setTours] = useState<Tour[]>([]);
-  const [activeSection, setActiveSection] = useState<'brand' | 'tours' | 'transport' | 'story' | 'tiktok' | 'social' | 'aiSettings' | 'aiBlogGen'>('brand');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeSection = searchParams.get('section') || 'brand';
 
   useEffect(() => {
     const fetchBrand = async () => {
@@ -77,89 +79,7 @@ const Admin: React.FC = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Admin Dashboard</h1>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-            <button
-              onClick={() => setActiveSection('brand')}
-              className={`px-4 py-3 rounded-lg font-semibold transition ${
-                activeSection === 'brand'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              Brand Settings
-            </button>
-            <button
-              onClick={() => setActiveSection('story')}
-              className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-                activeSection === 'story'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              <FaBook /> <span>Story</span>
-            </button>
-            <button
-              onClick={() => setActiveSection('tours')}
-              className={`px-4 py-3 rounded-lg font-semibold transition ${
-                activeSection === 'tours'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              Tours
-            </button>
-            <button
-              onClick={() => setActiveSection('transport')}
-              className={`px-4 py-3 rounded-lg font-semibold transition ${
-                activeSection === 'transport'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              Transport
-            </button>
-            <button
-              onClick={() => setActiveSection('tiktok')}
-              className={`px-4 py-3 rounded-lg font-semibold transition ${
-                activeSection === 'tiktok'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              TikTok
-            </button>
-            <button
-              onClick={() => setActiveSection('social')}
-              className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-                activeSection === 'social'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              <FaShareAlt /> <span>Social</span>
-            </button>
-            <button
-              onClick={() => setActiveSection('aiSettings')}
-              className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-                activeSection === 'aiSettings'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              <FaRobot /> <span>AI Config</span>
-            </button>
-            <button
-              onClick={() => setActiveSection('aiBlogGen')}
-              className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
-                activeSection === 'aiBlogGen'
-                  ? 'bg-teal-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              <FaMagic /> <span>AI Blog Gen</span>
-            </button>
-          </div>
-        </div>
+
 
         {/* Brand Settings Section */}
         {activeSection === 'brand' && (

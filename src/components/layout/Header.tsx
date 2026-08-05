@@ -1,16 +1,33 @@
 import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { HiMenu, HiX, HiSparkles } from 'react-icons/hi';
-import { MdHome, MdTour, MdLocalTaxi, MdEmail, MdLibraryBooks } from 'react-icons/md';
+import { MdHome, MdTour, MdLocalTaxi, MdEmail, MdLibraryBooks, MdSettings } from 'react-icons/md';
+import { FaBook, FaTiktok, FaShareAlt, FaRobot, FaMagic, FaSignOutAlt } from 'react-icons/fa';
 import LanguageSwitcher from '../LanguageSwitcher';
 import SoundToggle from '../SoundToggle';
 import { useBrand } from '../../contexts/BrandContext';
 import { playClickFx, playHoverFx } from '../../lib/soundEngine';
 
+import { getAdminPassword, clearAdminPassword } from '../../services/authStore';
+
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { brandSettings } = useBrand();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAdminRoute = location.pathname.startsWith('/admin') && !!getAdminPassword();
+
+  const handleLogout = () => {
+    clearAdminPassword();
+    navigate('/');
+  };
+
+  const adminNavClass = (section: string) => {
+    const currentSection = searchParams.get('section') || 'brand';
+    return `nav-link-pill p-3 !rounded-full transition ${currentSection === section ? 'bg-teal-600/15 text-teal-800 ring-1 ring-teal-600/25' : 'text-slate-600 hover:bg-slate-100'}`;
+  };
 
   const handleNavClick = () => {
     playClickFx();
@@ -57,44 +74,79 @@ const Header: React.FC = () => {
         <nav
           className={`${isMenuOpen ? 'flex' : 'hidden'} absolute left-3 right-3 top-[calc(100%+10px)] flex-col gap-3 rounded-[28px] border border-white/40 bg-white/85 px-6 py-6 shadow-[0_16px_48px_rgba(8,42,62,.16)] backdrop-blur-2xl md:static md:flex md:flex-row md:items-center md:gap-3 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
         >
-          <NavLink to="/#top" end onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
-            <MdHome />
-            <FormattedMessage id="nav.home" />
-          </NavLink>
+          {isAdminRoute ? (
+            <>
+              <Link to="/admin?section=brand" onClick={handleNavClick} className={adminNavClass('brand')} title="Brand Settings">
+                <MdSettings className="h-6 w-6" />
+              </Link>
+              <Link to="/admin?section=story" onClick={handleNavClick} className={adminNavClass('story')} title="Story">
+                <FaBook className="h-5 w-5" />
+              </Link>
+              <Link to="/admin?section=tours" onClick={handleNavClick} className={adminNavClass('tours')} title="Tours">
+                <MdTour className="h-6 w-6" />
+              </Link>
+              <Link to="/admin?section=transport" onClick={handleNavClick} className={adminNavClass('transport')} title="Transport">
+                <MdLocalTaxi className="h-6 w-6" />
+              </Link>
+              <Link to="/admin?section=tiktok" onClick={handleNavClick} className={adminNavClass('tiktok')} title="TikTok">
+                <FaTiktok className="h-5 w-5" />
+              </Link>
+              <Link to="/admin?section=social" onClick={handleNavClick} className={adminNavClass('social')} title="Social">
+                <FaShareAlt className="h-5 w-5" />
+              </Link>
+              <Link to="/admin?section=aiSettings" onClick={handleNavClick} className={adminNavClass('aiSettings')} title="AI Config">
+                <FaRobot className="h-5 w-5" />
+              </Link>
+              <Link to="/admin?section=aiBlogGen" onClick={handleNavClick} className={adminNavClass('aiBlogGen')} title="AI Blog Gen">
+                <FaMagic className="h-5 w-5" />
+              </Link>
+              <div className="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div>
+              <button onClick={handleLogout} className="nav-link-pill p-3 !rounded-full text-red-600 hover:bg-red-50 ring-1 ring-red-100 transition" title="Log Out & Return">
+                <FaSignOutAlt className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/#top" end onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
+                <MdHome />
+                <FormattedMessage id="nav.home" />
+              </NavLink>
 
-          {/* The planner gets its own accented tab — it is the fastest way in. */}
-          <NavLink
-            to="/plan#top"
-            onClick={handleNavClick}
-            onMouseEnter={() => playHoverFx()}
-            className={({ isActive }) =>
-              `flex items-center gap-2 rounded-full px-4 py-2 font-bold transition duration-300 ${
-                isActive
-                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-[0_10px_26px_rgba(13,148,136,.35)]'
-                  : 'bg-gradient-to-r from-teal-500/15 to-amber-400/15 text-teal-800 ring-1 ring-teal-500/30 hover:from-teal-500/25 hover:to-amber-400/25'
-              }`
-            }
-          >
-            <HiSparkles className="h-4 w-4" />
-            <FormattedMessage id="nav.plan" defaultMessage="Plan" />
-          </NavLink>
+              {/* The planner gets its own accented tab — it is the fastest way in. */}
+              <NavLink
+                to="/plan#top"
+                onClick={handleNavClick}
+                onMouseEnter={() => playHoverFx()}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded-full px-4 py-2 font-bold transition duration-300 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-[0_10px_26px_rgba(13,148,136,.35)]'
+                      : 'bg-gradient-to-r from-teal-500/15 to-amber-400/15 text-teal-800 ring-1 ring-teal-500/30 hover:from-teal-500/25 hover:to-amber-400/25'
+                  }`
+                }
+              >
+                <HiSparkles className="h-4 w-4" />
+                <FormattedMessage id="nav.plan" defaultMessage="Plan" />
+              </NavLink>
 
-          <NavLink to="/tours#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
-            <MdTour />
-            <FormattedMessage id="nav.tours" />
-          </NavLink>
-          <NavLink to="/transport#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
-            <MdLocalTaxi />
-            <FormattedMessage id="nav.transport" defaultMessage="Transport" />
-          </NavLink>
-          <NavLink to="/blog#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
-            <MdLibraryBooks />
-            <FormattedMessage id="nav.blog" defaultMessage="Blog" />
-          </NavLink>
-          <NavLink to="/contact#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
-            <MdEmail />
-            <FormattedMessage id="nav.contact" />
-          </NavLink>
+              <NavLink to="/tours#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
+                <MdTour />
+                <FormattedMessage id="nav.tours" />
+              </NavLink>
+              <NavLink to="/transport#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
+                <MdLocalTaxi />
+                <FormattedMessage id="nav.transport" defaultMessage="Transport" />
+              </NavLink>
+              <NavLink to="/blog#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
+                <MdLibraryBooks />
+                <FormattedMessage id="nav.blog" defaultMessage="Blog" />
+              </NavLink>
+              <NavLink to="/contact#top" onClick={handleNavClick} onMouseEnter={() => playHoverFx()} className={navClass}>
+                <MdEmail />
+                <FormattedMessage id="nav.contact" />
+              </NavLink>
+            </>
+          )}
           <div className="flex items-center gap-3 pt-2 md:pt-0">
             <LanguageSwitcher />
             <SoundToggle />
