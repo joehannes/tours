@@ -15,7 +15,7 @@ export interface AISettings {
 
 const defaultAISettings: AISettings = {
   gemini: { apiKey: '', selectedModel: 'gemini-1.5-pro' },
-  cloudflare: { apiKey: '', accountId: '', selectedModel: '@cf/meta/llama-3-8b-instruct' },
+  cloudflare: { apiKey: '', accountId: '', selectedModel: '@cf/meta/llama-3.1-8b-instruct-fp8' },
   openrouter: { apiKey: '', selectedModel: 'google/gemini-pro-1.5' },
   activeProvider: 'gemini',
 };
@@ -24,11 +24,18 @@ const normalizeAISettings = (input: unknown): AISettings => {
   const data = (input as Record<string, unknown>)?.record ?? input;
   if (!data || typeof data !== 'object') return defaultAISettings;
   
+  const normalizedCloudflare = { ...defaultAISettings.cloudflare, ...(data as any).cloudflare };
+  
+  // Auto-migrate deprecated models (410 Gone) to the new 3.1 equivalent
+  if (normalizedCloudflare.selectedModel === '@cf/meta/llama-3-8b-instruct') {
+    normalizedCloudflare.selectedModel = '@cf/meta/llama-3.1-8b-instruct-fp8';
+  }
+  
   return {
     ...defaultAISettings,
     ...(data as Partial<AISettings>),
     gemini: { ...defaultAISettings.gemini, ...(data as any).gemini },
-    cloudflare: { ...defaultAISettings.cloudflare, ...(data as any).cloudflare },
+    cloudflare: normalizedCloudflare,
     openrouter: { ...defaultAISettings.openrouter, ...(data as any).openrouter },
   };
 };
@@ -116,6 +123,6 @@ export const fetchCloudflareModels = async (accountId: string, apiToken: string)
       }));
   } catch (error) {
     console.error('Cloudflare model fetch error:', error);
-    return [{ id: '@cf/meta/llama-3-8b-instruct', name: 'Llama 3 8B Instruct (Default)' }];
+    return [{ id: '@cf/meta/llama-3.1-8b-instruct-fp8', name: 'Llama 3.1 8B Instruct (Default)' }];
   }
 };
