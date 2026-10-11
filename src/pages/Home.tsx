@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import Hero from '../components/Hero';
@@ -16,6 +16,10 @@ import { useBlog } from '../contexts/BlogContext';
 import QuickFacts from '../components/home/QuickFacts';
 import PathwaysSection from '../components/home/PathwaysSection';
 import { playClickFx, playHoverFx } from '../lib/soundEngine';
+import CaribbeanSea from '../components/water/CaribbeanSea';
+import ReefLight from '../components/water/ReefLight';
+import { GlidingBirds, LeafCanopy, Reveal, RisingBubbles, SwimmingSchool } from '../components/nature/Nature';
+import { Coral, EagleRay, Hibiscus, PalmTree, Sailboat, SeaFan, SeaTurtle, Seaweed } from '../components/ui/Illustrations';
 
 const HERO_BACKGROUND_IMAGE = '/imgs/tours/tour_saona_island_detail_12.jpg';
 const HERO_BACKGROUND_VIDEO = '/buggy.mp4';
@@ -26,6 +30,9 @@ const Home: React.FC = () => {
   const { blogArticles } = useBlog();
   const navigate = useNavigate();
   const [storyData, setStoryData] = useState<StoryData | null>(null);
+  // The two water bands listen to the pointer across their whole section.
+  const sunsetRef = useRef<HTMLElement>(null);
+  const reefRef = useRef<HTMLElement>(null);
   const seoArticles = blogArticles[locale] ?? [];
   const hiddenBlogStyle = {
     position: 'absolute' as const,
@@ -121,10 +128,12 @@ const Home: React.FC = () => {
                 >
                   <div className="parallax-wash parallax-wash-left" />
                   <div className="parallax-wash parallax-wash-right" />
+                  <SwimmingSchool className="z-0" opacity={0.75} />
+                  <LeafCanopy variant="jungle" />
 
                   <div className="relative z-10 max-w-6xl mx-auto">
                     {/* Header */}
-                    <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
+                    <Reveal className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
                       <div className="section-icon mx-auto mb-5">
                         {section.emoji}
                       </div>
@@ -134,13 +143,15 @@ const Home: React.FC = () => {
                       <p className="mx-auto mt-4 max-w-2xl text-lg font-semibold leading-8 text-ink-soft sm:text-xl">
                         {section.description}
                       </p>
-                    </div>
+                    </Reveal>
 
                     {/* Adventure cards grid */}
                     {section.adventures && (
                       <div className="grid gap-7 md:grid-cols-3 lg:gap-8">
                         {section.adventures.map((adventure, i) => (
-                          <AdventureCard key={adventure.id} adventure={adventure} index={i} />
+                          <Reveal key={adventure.id} delay={i * 0.12} className="h-full">
+                            <AdventureCard adventure={adventure} index={i} />
+                          </Reveal>
                         ))}
                       </div>
                     )}
@@ -172,8 +183,16 @@ const Home: React.FC = () => {
 
       {/* Call-to-Action Banner: prefer dynamic CTAs from storyData.callToActions */}
       {!storyData ? null : storyData.callToActions && storyData.callToActions.length > 0 ? (
-        <section className="home-section sunset-section wavy-band px-4 py-24 text-white sm:py-28 md:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+        <section ref={sunsetRef} className="home-section sunset-section wavy-band relative overflow-hidden px-4 py-28 text-white sm:py-36 md:px-8">
+          <CaribbeanSea className="z-0" pointerTarget={sunsetRef} />
+          <GlidingBirds className="z-[1]" tone="text-[#2a1d3a]/70" count={4} />
+          <div className="pointer-events-none absolute -bottom-6 -left-16 z-[1] h-80 w-56 opacity-90 sm:h-[28rem] sm:w-80" aria-hidden="true">
+            <PalmTree className="h-full w-full brightness-[0.25] saturate-50" />
+          </div>
+          <div className="pointer-events-none absolute -bottom-10 -right-20 z-[1] hidden h-[30rem] w-80 -scale-x-100 md:block" aria-hidden="true">
+            <PalmTree className="h-full w-full brightness-[0.22] saturate-50" />
+          </div>
+          <div className="relative z-10 max-w-4xl mx-auto text-center">
             <h2 className="mb-6 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
               {storyData.storyTitle || 'Ready for Your Perfect Day in Paradise?'}
             </h2>
@@ -204,14 +223,23 @@ const Home: React.FC = () => {
           </div>
         </section>
       ) : (
-        <section className="home-section sunset-section wavy-band px-4 py-24 text-white sm:py-28 md:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+        <section ref={sunsetRef} className="home-section sunset-section wavy-band relative overflow-hidden px-4 py-28 text-white sm:py-36 md:px-8">
+          <CaribbeanSea className="z-0" pointerTarget={sunsetRef} />
+          <GlidingBirds className="z-[1]" tone="text-[#2a1d3a]/70" count={4} />
+          <div className="pointer-events-none absolute -bottom-6 -left-16 z-[1] h-80 w-56 opacity-90 sm:h-[28rem] sm:w-80" aria-hidden="true">
+            <PalmTree className="h-full w-full brightness-[0.25] saturate-50" />
+          </div>
+          <div className="pointer-events-none absolute -bottom-10 -right-20 z-[1] hidden h-[30rem] w-80 -scale-x-100 md:block" aria-hidden="true">
+            <PalmTree className="h-full w-full brightness-[0.22] saturate-50" />
+          </div>
+          <div className="relative z-10 max-w-4xl mx-auto text-center">
             <h2 className="mb-6 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
               Ready for Your Perfect Day in Paradise?
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-lg font-bold leading-8 text-white sm:text-xl">
               Your adventure is just one click away. Contact us on WhatsApp or choose your adventure below.
             </p>
+            <p className="mb-6 font-accent text-xl text-white/80">{locale === 'es' ? 'mueve el sol con el cursor' : 'move the sun with your pointer'}</p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <button
                 onMouseEnter={() => playHoverFx()}
@@ -248,8 +276,23 @@ const Home: React.FC = () => {
       <TestimonialDisplay locale={locale} />
 
       {/* Why Choose Us Section - Enhanced */}
-      <section className="home-section reef-section wavy-band px-4 py-24 text-white sm:py-28 md:px-8">
-        <div className="max-w-6xl mx-auto">
+      <section ref={reefRef} className="home-section reef-section wavy-band relative overflow-hidden px-4 py-28 text-white sm:py-36 md:px-8">
+        <ReefLight className="z-0" pointerTarget={reefRef} />
+        <RisingBubbles className="z-[1]" />
+        <div className="pointer-events-none absolute left-0 top-[14%] z-[1] opacity-80" style={{ animation: 'swimRight 60s linear infinite', animationDelay: '-12s' }} aria-hidden="true">
+          <EagleRay className="h-20 w-28 rotate-90 sm:h-28 sm:w-40" />
+        </div>
+        <div className="pointer-events-none absolute left-0 top-[60%] z-[1] hidden opacity-80 md:block" style={{ animation: 'swimLeft 75s linear infinite', animationDelay: '-30s' }} aria-hidden="true">
+          <SeaTurtle className="h-24 w-20 rotate-90" />
+        </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-36" aria-hidden="true">
+          <Seaweed className="absolute bottom-0 left-[3%] h-36 w-16" />
+          <Coral className="absolute -bottom-3 left-[12%] h-28 w-28" />
+          <SeaFan className="absolute bottom-0 right-[22%] hidden h-32 w-32 md:block" />
+          <Coral tone="orchid" className="absolute -bottom-3 right-[4%] h-32 w-32" />
+          <Seaweed tone="gold" className="absolute bottom-0 right-[14%] hidden h-28 w-14 sm:block" />
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto">
           <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
             <h2 className="mb-4 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
               <FormattedMessage id="features.title" />
@@ -262,7 +305,7 @@ const Home: React.FC = () => {
           <div className="grid gap-6 md:grid-cols-3 lg:gap-8">
             {/* Safety First */}
             <div className="home-feature-card group p-8 animate-wave-sway-1">
-              <div className="text-5xl mb-4">🛡️</div>
+              <div className="mb-4"><SeaTurtle className="h-14 w-12" /></div>
               <h3 className="mb-3 font-display text-2xl font-extrabold text-ink">
                 <FormattedMessage id="features.safety.title" />
               </h3>
@@ -273,7 +316,7 @@ const Home: React.FC = () => {
 
             {/* Curated Experiences */}
             <div className="home-feature-card group p-8 animate-wave-sway-2">
-              <div className="text-5xl mb-4">🌿</div>
+              <div className="mb-4"><Hibiscus className="h-14 w-14" /></div>
               <h3 className="mb-3 font-display text-2xl font-extrabold text-ink">
                 <FormattedMessage id="features.experiences.title" />
               </h3>
@@ -284,7 +327,7 @@ const Home: React.FC = () => {
 
             {/* Transportation */}
             <div className="home-feature-card group p-8 animate-wave-sway-3">
-              <div className="text-5xl mb-4">🚗</div>
+              <div className="mb-4"><Sailboat className="h-14 w-14" /></div>
               <h3 className="mb-3 font-display text-2xl font-extrabold text-ink">
                 <FormattedMessage id="features.transportation.title" />
               </h3>

@@ -96,7 +96,7 @@ const TourCard: React.FC<TourCardProps> = ({
       className={`group mb-8 inline-block flex h-auto w-full break-inside-avoid flex-col justify-between overflow-hidden ${radiusClass} artsy-glass-card ${swayClass}`}
     >
       {/* Media Frame */}
-      <div className="relative aspect-[16/10] overflow-hidden border-b-[2.5px] border-ink">
+      <div className="relative aspect-[16/10] overflow-hidden">
         <Link to={detailsPath} onClick={() => playClickFx()} className="block h-full w-full" aria-label={title}>
           <img
             src={image}
@@ -107,6 +107,10 @@ const TourCard: React.FC<TourCardProps> = ({
         <div className="artsy-brick-badge absolute left-4 top-4">
           <span>★ Excursion</span>
         </div>
+        {/* The water line where the photo meets the card. */}
+        <svg className="pointer-events-none absolute inset-x-0 -bottom-px h-6 w-full" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 14 C60 2 120 22 200 12 C280 2 340 20 400 10 L400 24 L0 24 Z" fill="#FFFDF8" />
+        </svg>
       </div>
 
       {/* Content */}
@@ -172,7 +176,7 @@ const TourCard: React.FC<TourCardProps> = ({
               />
             </label>
 
-            <div className="flex items-center justify-between rounded-2xl border-[2.5px] border-ink bg-mango px-5 py-3 shadow-ink-sm">
+            <div className="flex items-center justify-between rounded-[22px_12px_22px_12px] bg-gradient-to-r from-mango-light to-mango px-5 py-3 shadow-mango">
               <span className="text-xs font-extrabold uppercase tracking-wider text-ink">
                 <FormattedMessage id="payment.total" defaultMessage="Total Estimate" />
               </span>

@@ -1,61 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Caveat:wght@600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ══════════════════════════════════════════════════════════════════════════
-   ILLUSTRATED TROPICAL DESIGN SYSTEM
+   EL CORTECITO — LIVING WATER
    ──────────────────────────────────────────────────────────────────────────
-   The site is drawn, not photographed. Three rules hold the look together:
+   A naturalist's field book open on the beach. Three rules hold it together:
 
-     1. Flat colour. No frosted glass, no backdrop blur, no photo-real
-        gradients — every surface is opaque poster paint.
-     2. Ink outline. Cards, buttons, badges and icons are drawn with the same
-        dark outline, the way a sticker sheet is.
-     3. Hard shadow. Depth comes from an un-blurred offset block of colour,
-        never from a soft haze.
+     1. Organic shapes. Leaves, pebbles and currents — radii are uneven on
+        purpose, edges are waves, nothing is a plain box.
+     2. Leaf shade, not ink. Depth comes from soft, green-tinted daylight
+        shadows and hairline pencil edges, never from hard offset blocks.
+     3. Real water. The big water surfaces are WebGL (src/components/water);
+        CSS only frames them. Every animation here moves `transform` or
+        `opacity` and nothing else.
 
-   Keep those three and anything new will sit inside the illustration.
+   The class names are the ones every branch's shared markup asks for — only
+   what they look like is this site's own.
    ══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --ink: #1e2a3a;
-  --ink-soft: #42566b;
-  --ink-light: #7c8fa3;
+  --ink: #0e3b36;
+  --ink-soft: #3e615b;
+  --ink-light: #7d9a94;
 
-  --paper: #fff6e5;
-  --paper-warm: #ffefd6;
-  --paper-deep: #f7e3c2;
+  --paper: #fbf5e8;
+  --paper-warm: #f5ead3;
+  --paper-deep: #e9d8b6;
+  --card: #fffdf8;
 
-  --mango: #ffa62b;
-  --mango-light: #ffc861;
-  --mango-dark: #f07e13;
+  --mango: #f7b23b;
+  --mango-light: #ffd47e;
+  --mango-dark: #d98612;
 
-  --hibiscus: #ff5d73;
-  --hibiscus-light: #ff9aa8;
+  --hibiscus: #f2675c;
+  --hibiscus-light: #ffb1a6;
+  --hibiscus-dark: #cf453e;
 
-  --lagoon: #21c0b7;
-  --lagoon-light: #7fe3da;
-  --lagoon-dark: #128c8a;
+  --lagoon: #17b5ac;
+  --lagoon-light: #93ece1;
+  --lagoon-dark: #0a7c76;
 
-  --sky: #4cc3f0;
-  --sky-light: #a5e4ff;
-  --sky-dark: #1c86be;
+  --sky: #4db6e5;
+  --sky-light: #bde9fa;
+  --sky-dark: #197db1;
 
-  --jungle: #2fa84f;
-  --jungle-light: #7bd389;
-  --jungle-dark: #1b7a3c;
+  --jungle: #3e9b50;
+  --jungle-light: #a3db93;
+  --jungle-dark: #1e6a3b;
 
-  --sunset: #ff7a45;
-  --grape: #9163de;
+  --sunset: #f2723c;
+  --grape: #9c6cd0;
+  --abyss: #06323d;
 
-  /* Every outline on the site is drawn with this one pen. */
-  --stroke: 2.5px;
-  --stroke-thin: 2px;
-  --shadow-ink: 5px 5px 0 0 var(--ink);
-  --shadow-ink-sm: 3px 3px 0 0 var(--ink);
-  --shadow-ink-lg: 8px 8px 0 0 var(--ink);
+  --line: rgb(14 59 54 / 0.14);
+  --shade-sm: 0 3px 10px -4px rgb(14 59 54 / 0.22);
+  --shade: 0 12px 28px -14px rgb(14 59 54 / 0.34);
+  --shade-lg: 0 22px 48px -20px rgb(14 59 54 / 0.4);
+
+  /* Organic radii, reused so the whole site has the same handful of pebbles. */
+  --pebble-a: 34px 22px 38px 18px / 26px 34px 20px 36px;
+  --pebble-b: 22px 36px 20px 34px / 34px 22px 36px 20px;
+  --leaf: 48px 10px 48px 10px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
@@ -64,12 +73,9 @@
 
 html {
   background: var(--paper);
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Fronds, badges and tilted stickers all reach slightly past the layout. None
-   of them are content, so clip the overflow instead of letting it produce a
-   horizontal scrollbar. `clip` (not `hidden`) keeps the viewport as the scroll
-   container, so the sticky header still sticks. */
 html,
 body {
   overflow-x: clip;
@@ -77,29 +83,26 @@ body {
 
 body {
   min-height: 100vh;
-  font-family: 'Nunito', system-ui, sans-serif;
-  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 500;
   color: var(--ink);
-  /* The paper colour lives on <html> so the drawn backdrop and the paper
-     grain — both negative z-index — can paint above it. A background here
-     would cover them. */
   background-color: transparent;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Hand-drawn paper speckle. Two sparse dot layers at low opacity read as
-   printed grain without costing an image request. */
+/* Sand grain, faint. Two sparse dot layers — no image request. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.55;
   background-image:
-    radial-gradient(circle at 50% 50%, rgba(30, 42, 58, 0.14) 1px, transparent 1.4px),
-    radial-gradient(circle at 50% 50%, rgba(240, 126, 19, 0.12) 1px, transparent 1.4px);
-  background-size: 22px 22px, 37px 37px;
-  background-position: 0 0, 11px 14px;
+    radial-gradient(circle at 50% 50%, rgb(14 59 54 / 0.07) 1px, transparent 1.5px),
+    radial-gradient(circle at 50% 50%, rgb(217 134 18 / 0.08) 1px, transparent 1.5px);
+  background-size: 19px 19px, 31px 31px;
+  background-position: 0 0, 9px 13px;
 }
 
 h1,
@@ -109,11 +112,21 @@ h4,
 h5,
 h6,
 .font-lobster {
-  font-family: 'Baloo 2', 'Nunito', system-ui, sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.12;
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'SOFT' 100, 'opsz' 96;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
   color: var(--ink);
+}
+
+/* Fraunces at 800 is a slab; the markup asks for `font-extrabold` everywhere,
+   so pull it back to a softer 700 on display copy. */
+.font-display.font-extrabold,
+h1.font-extrabold,
+h2.font-extrabold,
+h3.font-extrabold {
+  font-weight: 700;
 }
 
 a {
@@ -123,7 +136,18 @@ a {
 }
 
 a:hover {
-  color: var(--mango-dark);
+  color: var(--jungle-dark);
+}
+
+::selection {
+  background: var(--lagoon-light);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--lagoon);
+  outline-offset: 3px;
+  border-radius: 12px;
 }
 
 .section-shell {
@@ -132,49 +156,47 @@ a:hover {
 
 /* ── Type accents ───────────────────────────────────────────────────────── */
 
-/* Hand-lettered kicker above a headline. */
+/* A field-book note above a headline. */
 .hand-note {
   font-family: 'Caveat', cursive;
   font-weight: 700;
-  font-size: 1.55rem;
+  font-size: 1.7rem;
   line-height: 1;
-  color: var(--mango-dark);
-  transform: rotate(-2deg);
+  color: var(--jungle);
+  transform: rotate(-3deg);
   display: inline-block;
 }
 
-/* Marker-pen highlight behind a headline. Painted as a gradient on the inline
-   text box with `box-decoration-break: clone`, so a headline that wraps gets
-   the stroke under each line instead of one smear across the whole block. */
+/* A brush of shallow-water turquoise under the words. */
 .marker-highlight {
   display: inline;
-  padding: 0 0.08em;
+  padding: 0 0.06em;
   background-image: linear-gradient(
     to bottom,
-    transparent 58%,
-    var(--mango-light) 58%,
-    var(--mango-light) 92%,
-    transparent 92%
+    transparent 62%,
+    rgb(147 236 225 / 0.85) 62%,
+    rgb(147 236 225 / 0.85) 90%,
+    transparent 90%
   );
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
 
-/* Used by story headings: a crayon underline sweeping under the title. */
+/* A current sweeping under a story heading. */
 .scribble-title-bg {
   position: relative;
   display: inline-block;
-  padding-bottom: 0.2em;
+  padding-bottom: 0.25em;
 }
 
 .scribble-title-bg::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.12em;
-  height: 0.5rem;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2,8 C40,2 60,10 100,5 C140,0 165,9 198,4' stroke='%23FFA62B' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+  left: 8%;
+  right: 8%;
+  bottom: -0.1em;
+  height: 0.55rem;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 14' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C22 2 38 12 58 7 C78 2 94 12 114 7 C134 2 150 12 170 7 C182 4 192 6 198 7' stroke='%2317B5AC' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
 }
 
 /* ── Section bands ──────────────────────────────────────────────────────── */
@@ -183,88 +205,64 @@ a:hover {
   isolation: isolate;
 }
 
-/* Flat poster bands. Opaque on purpose — the illustrated backdrop shows
-   through the wave-shaped gaps between them, not through the paint. */
+/* A faint pressed-leaf print on the dry-sand bands. */
 .shore-section {
-  background: var(--paper) !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='%233E9B50' stroke-opacity='0.07' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M30 190 C60 150 70 110 110 80'/%3E%3Cpath d='M48 166 C40 150 30 146 22 148 M62 146 C56 128 46 122 36 124 M76 126 C72 108 64 100 54 100 M58 162 C72 162 82 156 88 146 M74 140 C88 140 98 132 102 122 M90 118 C104 116 112 108 114 98'/%3E%3Cpath d='M160 60 C168 40 186 32 204 36 C196 54 180 62 160 60 Z'/%3E%3Cpath d='M164 58 L196 40'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 220px 220px,
+    var(--paper) !important;
 }
 
 .cove-section {
-  background: var(--paper-warm) !important;
+  background: linear-gradient(180deg, #f8eedb 0%, var(--paper-warm) 100%) !important;
 }
 
+/* Shallow water, lit from above: a soft caustic net over pale turquoise. */
 .lagoon-section {
-  background: linear-gradient(180deg, #e6f7ff 0%, #d3f0ff 100%) !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='200' viewBox='0 0 260 200'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.5' stroke-width='2'%3E%3Cpath d='M0 40 C30 30 50 60 80 50 C110 40 120 10 150 20 C180 30 200 60 230 50 C245 45 255 40 260 42'/%3E%3Cpath d='M20 120 C40 100 70 110 90 130 C110 150 140 140 160 120 C180 100 210 110 240 130'/%3E%3Cpath d='M80 50 C70 80 90 100 90 130 M150 20 C160 60 150 90 160 120 M230 50 C220 80 240 100 240 130'/%3E%3Cpath d='M0 180 C40 170 60 190 100 182 C140 174 160 190 200 184 C230 180 250 186 260 184'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 260px 200px,
+    linear-gradient(180deg, #def7f3 0%, #c6efea 100%) !important;
 }
 
 .bay-section {
-  background: linear-gradient(180deg, #e4fbf4 0%, #d0f6ea 100%) !important;
+  background: linear-gradient(180deg, #eaf6e4 0%, #d9efd4 100%) !important;
 }
 
 .dawn-section {
-  background: linear-gradient(180deg, #fff6e5 0%, #ffe6c9 100%) !important;
+  background: linear-gradient(180deg, #fbf5e8 0%, #fde5cf 100%) !important;
 }
 
 .sunset-section {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, #ffc861 0%, #ff9a5b 48%, #ff5d73 100%) !important;
+  background: linear-gradient(180deg, #4b3a6b 0%, #c7586a 45%, #f7965c 80%, #ffd47e 100%) !important;
 }
 
 .reef-section {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, #7fe3da 0%, #21c0b7 45%, #128c8a 100%) !important;
+  background: linear-gradient(180deg, #0f7d82 0%, #0a5d6a 50%, #06323d 100%) !important;
 }
 
-/* A drawn sun sitting behind the warm band, and drifting water rings behind
-   the reef band. Both are pure gradients, so they cost nothing to paint. */
-.sunset-section::before {
-  content: '';
-  position: absolute;
-  top: -14%;
-  left: 50%;
-  width: min(58vw, 620px);
-  aspect-ratio: 1;
-  transform: translateX(-50%);
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgba(255, 245, 214, 0.95) 0%, rgba(255, 233, 175, 0.55) 42%, transparent 62%);
-  pointer-events: none;
+.sunset-section p {
+  text-shadow: 0 1px 14px rgb(42 29 58 / 0.65), 0 0 2px rgb(42 29 58 / 0.4);
 }
 
-/* Drawn foam ticks scattered over the water, rather than concentric rings —
-   the rings read as a printing artefact at full width. */
-.reef-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.5;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160' viewBox='0 0 240 160'%3E%3Cg stroke='%23ffffff' stroke-width='4' stroke-linecap='round' fill='none' opacity='0.55'%3E%3Cpath d='M20 34 h34'/%3E%3Cpath d='M150 22 h26'/%3E%3Cpath d='M92 86 h30'/%3E%3Cpath d='M196 104 h28'/%3E%3Cpath d='M42 132 h24'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 240px 160px;
-}
-
-/* Section copy on the two saturated bands is white, so the drawn outline is
-   white there too. */
 .sunset-section h2,
 .sunset-section h3,
 .reef-section h2,
 .reef-section h3 {
   color: #ffffff;
-  text-shadow: 3px 3px 0 rgba(30, 42, 58, 0.28);
+  text-shadow: 0 2px 18px rgb(6 50 61 / 0.45);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   Wavy section edges
-   The bands are masked with a rolling wave at top and bottom: one composited
-   layer, no extra DOM, and the illustrated backdrop stays visible through the
-   troughs.
+   Wavy section edges — a slow, uneven swell rather than a regular sine.
    ══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --wave-top: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,72 C120,120 220,24 340,58 C460,92 540,10 660,44 C780,78 880,116 1000,74 C1090,42 1140,58 1200,44 L1200,120 L0,120 Z' fill='%23000'/%3E%3C/svg%3E");
-  --wave-bottom: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L1200,0 L1200,76 C1140,62 1090,78 1000,46 C880,4 780,42 660,76 C540,110 460,28 340,62 C220,96 120,0 0,48 Z' fill='%23000'/%3E%3C/svg%3E");
-  --wave-height: 3.25rem;
+  --wave-top: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,70 C90,40 170,92 290,74 C420,54 470,18 600,30 C720,42 770,96 900,90 C1010,84 1080,40 1200,48 L1200,120 L0,120 Z' fill='%23000'/%3E%3C/svg%3E");
+  --wave-bottom: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L1200,0 L1200,70 C1090,92 1010,40 890,48 C770,56 720,104 600,96 C470,88 420,40 300,46 C170,52 90,96 0,64 Z' fill='%23000'/%3E%3C/svg%3E");
+  --wave-height: 3.5rem;
 }
 
 .wavy-band,
@@ -303,253 +301,280 @@ a:hover {
 
 @media (max-width: 640px) {
   :root {
-    --wave-height: 2rem;
+    --wave-height: 2.1rem;
   }
 }
 
-/* ── Drawn surfaces ─────────────────────────────────────────────────────── */
+/* ── Surfaces ───────────────────────────────────────────────────────────── */
 
-/* The single card recipe the whole site draws from. */
+/*
+ * The card recipe. The lift on hover is a transform; the deeper shade is a
+ * pseudo-element whose opacity fades in — a box-shadow transition would be
+ * repainted every frame of the hover.
+ */
 .sticker-card,
 .artsy-glass-card,
 .glass-card {
   position: relative;
-  background: #fffdf7;
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shade);
+  transition: transform 0.45s var(--ease-out);
+}
+
+.sticker-card::after,
+.artsy-glass-card::after,
+.glass-card::after,
+.home-feature-card::after,
+.story-copy-card::after,
+.pathway-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--shade-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s var(--ease-out);
 }
 
 .sticker-card:hover,
 .artsy-glass-card:hover,
 .glass-card:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 8px 8px 0 0 var(--ink);
+  transform: translateY(-6px);
 }
 
-/* Feature cards live on the saturated bands, so they are painted in poster
-   colours and cycle hue by position. */
+.sticker-card:hover::after,
+.artsy-glass-card:hover::after,
+.glass-card:hover::after,
+.home-feature-card:hover::after,
+.story-copy-card:hover::after,
+.pathway-card:hover::after {
+  opacity: 1;
+}
+
+/* Feature cards float on the reef band like translucent sea glass. */
 .home-feature-card {
   position: relative;
-  border-radius: 26px;
-  border: var(--stroke) solid var(--ink);
-  background: var(--paper);
+  border-radius: var(--pebble-a);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  background: rgb(255 253 248 / 0.94);
   color: var(--ink);
-  box-shadow: var(--shadow-ink);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
-}
-
-.home-feature-card:hover {
-  transform: translate(-4px, -4px);
-  box-shadow: 9px 9px 0 0 var(--ink);
-}
-
-.home-feature-card:nth-child(3n + 1) {
-  background: #fff2d9;
+  box-shadow: 0 20px 44px -24px rgb(0 20 26 / 0.7);
+  transition: transform 0.45s var(--ease-out);
 }
 
 .home-feature-card:nth-child(3n + 2) {
-  background: #e2fbf5;
+  border-radius: var(--pebble-b);
 }
 
-.home-feature-card:nth-child(3n + 3) {
-  background: #ffe8ea;
+.home-feature-card:hover {
+  transform: translateY(-8px);
 }
 
-/* Feature-card copy is dark now that the cards are cream, so neutralise the
-   light text utilities the markup still carries. */
 .home-feature-card h3,
 .home-feature-card p {
   color: var(--ink);
+  text-shadow: none;
 }
 
 .story-copy-card {
-  border-radius: 24px;
-  border: var(--stroke) solid var(--ink);
-  background: #fffdf7;
+  position: relative;
+  border-radius: var(--pebble-a);
+  border: 1px solid var(--line);
+  background: var(--card);
   padding: 1.75rem;
-  box-shadow: var(--shadow-ink);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  box-shadow: var(--shade);
+  transition: transform 0.45s var(--ease-out);
 }
 
 .story-copy-card:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 8px 8px 0 0 var(--ink);
+  transform: translateY(-4px);
 }
 
-/* Photographs are framed as if pasted into a scrapbook: ink border, hard
-   shadow, and a small colour lift so they sit with the drawn palette. */
+/* Photographs sit in pebble frames with a thin sand mat. */
 .story-media-frame {
   position: relative;
 }
 
 .story-media-frame img,
 .story-media-frame iframe {
-  border-radius: 24px;
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink-lg);
-  filter: saturate(1.18) contrast(1.05);
+  border-radius: 46% 54% 42% 58% / 34% 38% 62% 66% !important;
+  border: 6px solid var(--card);
+  box-shadow: var(--shade-lg);
 }
 
 .photo-sticker {
-  border: var(--stroke) solid var(--ink);
-  filter: saturate(1.2) contrast(1.06);
+  border: 4px solid var(--card);
 }
 
-/* Photography sits inside a drawn page, so it is pushed a little towards the
-   poster palette: more saturation, a touch more contrast, slightly warmer. */
 .photo-pop {
-  filter: saturate(1.22) contrast(1.07) brightness(1.02);
+  filter: saturate(1.1) contrast(1.03);
 }
 
 .hero-glass {
   position: relative;
   overflow: hidden;
-  border-radius: 32px;
-  background: var(--paper);
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink-lg);
+  border-radius: var(--pebble-a);
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shade-lg);
 }
 
-/* Round sticker holding a section's emoji. */
+/* A pebble holding a section's emoji. */
 .section-icon {
   display: inline-grid;
   width: 78px;
   height: 78px;
   place-items: center;
-  border-radius: 9999px;
-  background: var(--mango-light);
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink);
-  font-size: 2.3rem;
+  border-radius: 58% 42% 55% 45% / 48% 56% 44% 52%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, var(--lagoon-light) 70%);
+  box-shadow: var(--shade);
+  font-size: 2.2rem;
   line-height: 1;
-  transform: rotate(-3deg);
-  transition: transform 0.25s ease;
+  transition: transform 0.6s var(--ease-spring);
 }
 
 .section-icon:hover {
-  transform: rotate(3deg) scale(1.05);
+  transform: rotate(-8deg) scale(1.08);
 }
 
-/* Loose colour washes behind sections. Kept soft and sparse — they suggest
-   painted paper rather than a photographic glow. */
+/* Soft washes of colour behind sections — like light through leaves. */
 .parallax-wash {
   position: absolute;
   z-index: -1;
-  width: min(40vw, 460px);
+  width: min(42vw, 480px);
   aspect-ratio: 1;
   border-radius: 46% 54% 52% 48% / 52% 46% 54% 48%;
-  opacity: 0.35;
+  opacity: 0.4;
   pointer-events: none;
-  background: var(--mango-light);
+  background: radial-gradient(circle, var(--mango-light) 0%, transparent 68%);
 }
 
 .parallax-wash-left {
-  left: -12%;
-  top: 10%;
-  background: var(--lagoon-light);
+  left: -14%;
+  top: 8%;
+  background: radial-gradient(circle, var(--lagoon-light) 0%, transparent 68%);
 }
 
 .parallax-wash-right {
-  right: -12%;
-  bottom: 8%;
-  background: var(--mango-light);
+  right: -14%;
+  bottom: 6%;
+  background: radial-gradient(circle, var(--jungle-light) 0%, transparent 68%);
 }
 
 /* ── Buttons ────────────────────────────────────────────────────────────── */
 
-/* Buttons that don't set their own radius stay pills, as they were before the
-   redesign — a Tailwind radius utility still overrides this. */
 button {
-  font-family: 'Baloo 2', 'Nunito', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 700;
   border-radius: 9999px;
 }
 
-/* The press interaction: the button slides into its own shadow. */
+/*
+ * The primary button is a ripe papaya pebble. Hover lifts it and sweeps a
+ * glint of sunlight across — both transforms.
+ */
 .tropical-button,
 .tropical-button-outline,
-.planner-cta,
-.planner-cta-ghost {
-  font-family: 'Baloo 2', 'Nunito', system-ui, sans-serif;
+.planner-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .tropical-button {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-extrabold uppercase tracking-wide;
-  background: var(--mango);
+  @apply inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-extrabold tracking-wide;
+  border-radius: 999px 999px 999px 999px / 999px 999px 999px 999px;
+  background: linear-gradient(135deg, #ffd47e 0%, #f7b23b 55%, #f29a3b 100%);
   color: var(--ink);
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+  border: 0;
+  box-shadow: 0 10px 24px -12px rgb(217 134 18 / 0.75), inset 0 -3px 0 rgb(14 59 54 / 0.12);
+  transition: transform 0.35s var(--ease-spring);
+}
+
+.tropical-button::before,
+.tropical-button-outline::before,
+.planner-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s var(--ease-out);
+}
+
+.tropical-button:hover,
+.tropical-button-outline:hover,
+.planner-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.tropical-button:hover::before,
+.tropical-button-outline:hover::before,
+.planner-cta:hover::before {
+  transform: translateX(120%);
 }
 
 .tropical-button:hover {
-  background: var(--mango-light);
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 0 var(--ink);
+  color: var(--ink);
 }
 
-.tropical-button:active {
-  transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 0 var(--ink);
+.tropical-button:active,
+.tropical-button-outline:active,
+.planner-cta:active {
+  transform: translateY(1px) scale(0.98);
 }
 
 .tropical-button-outline {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-extrabold uppercase tracking-wide;
-  background: #fffdf7;
+  @apply inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-extrabold tracking-wide;
+  border-radius: 999px;
+  background: rgb(255 253 248 / 0.92);
   color: var(--ink);
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+  border: 1.5px solid rgb(14 59 54 / 0.18);
+  box-shadow: var(--shade-sm);
+  transition: transform 0.35s var(--ease-spring), background 0.25s ease;
 }
 
 .tropical-button-outline:hover {
-  background: var(--lagoon-light);
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 0 var(--ink);
+  background: #ffffff;
+  color: var(--ink);
 }
 
-.tropical-button-outline:active {
-  transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 0 var(--ink);
-}
-
-/* Colour variants for the same shape. */
 .btn-lagoon {
-  background: var(--lagoon);
+  background: linear-gradient(135deg, #2fd1c5 0%, var(--lagoon) 55%, var(--lagoon-dark) 100%);
   color: #ffffff;
+  border-color: transparent;
 }
 
 .btn-lagoon:hover {
-  background: var(--lagoon-light);
-  color: var(--ink);
-}
-
-.btn-hibiscus {
-  background: var(--hibiscus);
+  background: linear-gradient(135deg, #2fd1c5 0%, var(--lagoon) 55%, var(--lagoon-dark) 100%);
   color: #ffffff;
 }
 
+.btn-hibiscus {
+  background: linear-gradient(135deg, var(--hibiscus-light) 0%, var(--hibiscus) 60%, var(--hibiscus-dark) 100%);
+  color: #ffffff;
+  border-color: transparent;
+}
+
 .btn-hibiscus:hover {
-  background: var(--hibiscus-light);
-  color: var(--ink);
+  color: #ffffff;
 }
 
 button,
 input,
 textarea,
 select {
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-/* Form fields are drawn with the same pen as everything else. These are
-   element selectors, so any component that sets its own border/background
-   utilities still wins — this is only the default for fields that don't. */
 input:not([type='range']),
 textarea,
 select {
-  font-family: 'Nunito', system-ui, sans-serif;
-  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -563,8 +588,8 @@ input[type='search'],
 input[type='password'],
 textarea,
 select {
-  border: var(--stroke-thin) solid var(--ink);
-  border-radius: 14px;
+  border: 1.5px solid rgb(14 59 54 / 0.18);
+  border-radius: 16px;
   background: #ffffff;
 }
 
@@ -579,51 +604,116 @@ input[type='password']:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  background: #f0fdfa;
+  border-color: var(--lagoon);
+  background: #f2fdfb;
 }
 
 ::placeholder {
   color: var(--ink-light);
-  font-weight: 600;
+  font-weight: 500;
 }
 
-/* ── Navigation ─────────────────────────────────────────────────────────── */
+/* ── Navigation: the vine and its tags ──────────────────────────────────── */
 
+/* Used only by the admin bar now; the public site hangs its links from a
+   vine (src/components/layout/Header.tsx). */
 .lobster-header {
   background: var(--paper);
-  border-bottom: 3px solid var(--ink);
+  border-bottom: 1px solid var(--line);
 }
 
 .nav-link-pill {
-  @apply flex items-center gap-2 rounded-full px-4 py-2 font-bold transition duration-200;
+  @apply flex items-center gap-2 rounded-full px-4 py-2 font-bold;
   color: var(--ink);
-  border: var(--stroke-thin) solid transparent;
+  transition: background 0.2s ease, transform 0.3s var(--ease-spring);
 }
 
 .nav-link-pill:hover {
-  background: var(--mango-light);
-  border-color: var(--ink);
+  background: var(--lagoon-light);
   color: var(--ink);
   transform: translateY(-1px);
 }
 
 .nav-link-pill-active {
   background: var(--lagoon-light);
-  border-color: var(--ink);
-  box-shadow: var(--shadow-ink-sm);
+}
+
+/* A luggage tag hanging off the vine. The string is the ::before. */
+.vine-tag {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.95rem 1.05rem 0.7rem;
+  min-width: 5.6rem;
+  border-radius: 16px 16px 22px 22px / 26px 26px 18px 18px;
+  background: linear-gradient(180deg, #fffdf8 0%, #f8eedb 100%);
+  box-shadow: 0 10px 20px -12px rgb(14 59 54 / 0.55), inset 0 -2px 0 rgb(14 59 54 / 0.06);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.86rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.vine-tag:hover {
+  color: var(--ink);
+}
+
+/* The eyelet the string goes through. */
+.vine-tag::after {
+  content: '';
+  position: absolute;
+  top: 0.38rem;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: -0.25rem;
+  border-radius: 9999px;
+  background: var(--paper-deep);
+  box-shadow: inset 0 1px 2px rgb(14 59 54 / 0.35);
+}
+
+.vine-tag-icon {
+  font-size: 1.15rem;
+  margin-top: 0.25rem;
+  color: var(--lagoon-dark);
+}
+
+.vine-tag-note {
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ink-light);
+  letter-spacing: 0;
+}
+
+.vine-tag[data-active='true'] {
+  background: linear-gradient(180deg, #2fd1c5 0%, var(--lagoon-dark) 100%);
+  color: #ffffff;
+}
+
+.vine-tag[data-active='true'] .vine-tag-icon,
+.vine-tag[data-active='true'] .vine-tag-note {
+  color: #e6fffb;
+}
+
+.vine-tag[data-accent='mango'] {
+  background: linear-gradient(180deg, #ffe3a6 0%, var(--mango) 100%);
 }
 
 .language-toggle {
   @apply inline-flex items-center rounded-full p-1;
-  background: #fffdf7;
-  border: var(--stroke-thin) solid var(--ink);
-  box-shadow: var(--shadow-ink-sm);
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shade-sm);
 }
 
 .language-toggle-button {
-  @apply inline-flex h-9 min-w-[48px] items-center justify-center rounded-full px-3.5 text-sm font-extrabold transition duration-150;
-  font-family: 'Baloo 2', 'Nunito', sans-serif;
+  @apply inline-flex h-9 min-w-[46px] items-center justify-center rounded-full px-3.5 text-sm font-extrabold;
   color: var(--ink);
+  transition: background 0.2s ease;
 }
 
 .language-toggle-button.active {
@@ -632,79 +722,62 @@ select:focus {
 }
 
 .language-toggle-button:not(.active):hover {
-  background: var(--mango-light);
+  background: var(--lagoon-light);
 }
 
-/* ── Stickers & badges ──────────────────────────────────────────────────── */
+/* ── Badges ─────────────────────────────────────────────────────────────── */
 
-.artsy-brick-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.8rem;
-  border-radius: 9999px;
-  background: var(--mango);
-  color: var(--ink);
-  font-family: 'Baloo 2', 'Nunito', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: var(--stroke-thin) solid var(--ink);
-  box-shadow: var(--shadow-ink-sm);
-  transform: rotate(-3deg);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.artsy-brick-badge:hover {
-  transform: rotate(0deg) scale(1.06);
-}
-
+.artsy-brick-badge,
 .artsy-brick-badge-inverted {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.3rem 0.8rem;
-  border-radius: 9999px;
-  background: var(--lagoon-light);
-  color: var(--ink);
-  font-family: 'Baloo 2', 'Nunito', sans-serif;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--leaf);
   font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  border: var(--stroke-thin) solid var(--ink);
-  box-shadow: var(--shadow-ink-sm);
-  transform: rotate(2deg);
+  box-shadow: var(--shade-sm);
+  transition: transform 0.4s var(--ease-spring);
 }
 
-.artsy-title-card {
-  display: inline-block;
-  padding: 0.7rem 1.5rem;
-  background: var(--lagoon);
-  color: #ffffff;
-  border-radius: 20px;
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink);
-  transform: rotate(-1.5deg);
+.artsy-brick-badge {
+  background: linear-gradient(135deg, var(--mango-light), var(--mango));
+  color: var(--ink);
 }
 
+.artsy-brick-badge:hover {
+  transform: rotate(-4deg) scale(1.06);
+}
+
+.artsy-brick-badge-inverted {
+  background: linear-gradient(135deg, #d7f8f3, var(--lagoon-light));
+  color: var(--lagoon-dark);
+}
+
+.artsy-title-card,
 .artsy-title-card-light {
   display: inline-block;
   padding: 0.7rem 1.5rem;
-  background: var(--paper);
-  color: var(--ink);
-  border-radius: 20px;
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink);
-  transform: rotate(1.5deg);
+  border-radius: var(--pebble-a);
+  box-shadow: var(--shade);
 }
 
-/* A postage-stamp edge, used on the hero portrait and highlight tiles. */
+.artsy-title-card {
+  background: linear-gradient(135deg, var(--lagoon), var(--lagoon-dark));
+  color: #ffffff;
+}
+
+.artsy-title-card-light {
+  background: var(--card);
+  color: var(--ink);
+}
+
 .stamp-edge {
   --stamp-notch: 9px;
-  background: var(--ink);
-  padding: var(--stroke);
+  background: var(--card);
+  padding: 3px;
   -webkit-mask-image: radial-gradient(circle at center, #000 68%, transparent 70%);
   -webkit-mask-size: var(--stamp-notch) var(--stamp-notch);
   -webkit-mask-repeat: repeat;
@@ -718,33 +791,36 @@ select:focus {
 .pathway-card {
   position: relative;
   overflow: hidden;
-  border-radius: 30px;
-  border: var(--stroke) solid var(--ink);
-  background: #fffdf7;
-  box-shadow: var(--shadow-ink-lg);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
+  border-radius: var(--pebble-a);
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shade-lg);
+  transition: transform 0.45s var(--ease-out);
+}
+
+.pathway-card:nth-child(2) {
+  border-radius: var(--pebble-b);
 }
 
 .pathway-card:hover {
-  transform: translate(-4px, -4px);
-  box-shadow: 12px 12px 0 0 var(--ink);
+  transform: translateY(-8px);
 }
 
 .pathway-card-dark {
-  background: #1b3a4b;
-  color: #fff6e5;
+  background:
+    radial-gradient(circle at 85% 0%, rgb(147 236 225 / 0.25) 0%, transparent 45%),
+    linear-gradient(160deg, #0b4f5c 0%, var(--abyss) 100%);
+  color: #fbf5e8;
+  border-color: transparent;
 }
 
 .pathway-card-dark h3,
 .pathway-card-dark h2 {
-  color: #fff6e5;
+  color: #fbf5e8;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   Plan My Day — the night-market panel
-   The planner is the one deliberately dark surface: a flat midnight-teal
-   poster with mango and lagoon accents, so the guided flow reads as its own
-   place without breaking the drawn language.
+   Plan My Day — night lagoon
    ══════════════════════════════════════════════════════════════════════════ */
 
 .planner {
@@ -763,17 +839,18 @@ select:focus {
 }
 
 .planner-panel {
-  border-radius: 30px;
-  border: var(--stroke) solid var(--ink);
-  background: #17313f;
-  color: #fff6e5;
-  box-shadow: var(--shadow-ink-lg);
+  border-radius: var(--pebble-a);
+  background:
+    radial-gradient(circle at 90% 0%, rgb(147 236 225 / 0.18) 0%, transparent 40%),
+    linear-gradient(170deg, #0b4f5c 0%, var(--abyss) 100%);
+  color: #fbf5e8;
+  box-shadow: var(--shade-lg);
 }
 
 .planner-panel-soft {
-  border-radius: 22px;
-  border: var(--stroke-thin) solid rgba(255, 246, 229, 0.35);
-  background: #1f3d4d;
+  border-radius: 24px;
+  border: 1px solid rgb(251 245 232 / 0.18);
+  background: rgb(255 255 255 / 0.06);
 }
 
 .planner-option {
@@ -782,29 +859,26 @@ select:focus {
   width: 100%;
   align-items: flex-start;
   gap: 1rem;
-  border-radius: 20px;
-  border: var(--stroke-thin) solid var(--ink);
-  background: #f7fbfb;
+  border-radius: 22px 14px 22px 14px;
+  border: 1px solid transparent;
+  background: #f4fbf9;
   padding: 1.1rem 1.2rem;
   text-align: left;
   color: var(--ink);
-  box-shadow: 4px 4px 0 0 var(--ink);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 18px -12px rgb(0 0 0 / 0.5);
+  transition: transform 0.35s var(--ease-spring), background 0.2s ease;
 }
 
 .planner-option:hover {
-  transform: translate(-2px, -2px);
-  background: var(--lagoon-light);
-  box-shadow: 6px 6px 0 0 var(--ink);
+  transform: translateY(-3px);
+  background: #e3faf6;
 }
 
 .planner-option[data-selected='true'] {
-  background: var(--mango-light);
-  box-shadow: 6px 6px 0 0 var(--ink);
+  background: linear-gradient(135deg, #fff3d4, var(--mango-light));
+  border-color: var(--mango);
 }
 
-/* The option markup carries light-on-dark text utilities; the tiles are cream
-   now, so pin their contents back to ink. */
 .planner-option,
 .planner-option * {
   color: var(--ink) !important;
@@ -814,21 +888,20 @@ select:focus {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 9999px;
-  border: var(--stroke-thin) solid var(--ink);
-  background: #fffdf7;
+  border-radius: var(--leaf);
+  border: 1px solid var(--line);
+  background: var(--card);
   padding: 0.5rem 1rem;
-  font-family: 'Baloo 2', 'Nunito', sans-serif;
   font-size: 0.85rem;
   font-weight: 800;
   color: var(--ink);
-  box-shadow: 3px 3px 0 0 var(--ink);
-  transition: transform 0.18s ease, background 0.2s ease;
+  box-shadow: var(--shade-sm);
+  transition: transform 0.3s var(--ease-spring), background 0.2s ease;
 }
 
 .planner-chip:hover {
   background: var(--lagoon-light);
-  transform: translate(-1px, -1px);
+  transform: translateY(-2px);
 }
 
 .planner-chip[data-selected='true'] {
@@ -841,49 +914,33 @@ select:focus {
   width: 100%;
   overflow: hidden;
   border-radius: 9999px;
-  border: var(--stroke-thin) solid var(--ink);
-  background: #fffdf7;
+  background: rgb(255 253 248 / 0.9);
 }
 
 .planner-rail-fill {
   height: 100%;
-  background: repeating-linear-gradient(
-    45deg,
-    var(--mango) 0 10px,
-    var(--mango-light) 10px 20px
-  );
-  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(90deg, var(--lagoon-light), var(--lagoon), var(--jungle));
+  transition: width 0.45s var(--ease-out);
 }
 
 .planner-cta {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-extrabold uppercase tracking-wide;
-  background: var(--mango);
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-extrabold tracking-wide;
+  background: linear-gradient(135deg, #ffd47e 0%, #f7b23b 55%, #f29a3b 100%);
   color: var(--ink);
-  border: var(--stroke) solid var(--ink);
-  box-shadow: var(--shadow-ink);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.planner-cta:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 0 var(--ink);
-}
-
-.planner-cta:active {
-  transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 0 var(--ink);
+  box-shadow: 0 10px 24px -12px rgb(217 134 18 / 0.75);
+  transition: transform 0.35s var(--ease-spring);
 }
 
 .planner-cta-ghost {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-extrabold uppercase tracking-wide;
-  border: var(--stroke) solid #fff6e5;
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-extrabold tracking-wide;
+  border: 1.5px solid rgb(251 245 232 / 0.6);
   background: transparent;
-  color: #fff6e5;
+  color: #fbf5e8;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
 .planner-cta-ghost:hover {
-  background: #fff6e5;
+  background: #fbf5e8;
   color: var(--ink);
 }
 
@@ -893,9 +950,8 @@ select:focus {
   min-width: 1.6rem;
   place-items: center;
   border-radius: 0.5rem;
-  border: var(--stroke-thin) solid var(--ink);
+  border: 1px solid var(--line);
   background: var(--paper);
-  font-family: 'Baloo 2', sans-serif;
   font-size: 0.72rem;
   font-weight: 800;
   color: var(--ink);
@@ -913,78 +969,188 @@ select:focus {
   to { transform: translate3d(-50%, 0, 0); }
 }
 
-/* ── Drawn motion ───────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   Motion — everything below moves transform or opacity, nothing else.
+   ══════════════════════════════════════════════════════════════════════════ */
 
-/* Ten gentle tilt/bob variants. Cards nudge like paper cut-outs pinned to a
-   board — small amplitudes, no skew, so outlines stay crisp. */
-@keyframes tilt1 { 0%, 100% { transform: translateY(0) rotate(-0.8deg); } 50% { transform: translateY(-7px) rotate(0.7deg); } }
-@keyframes tilt2 { 0%, 100% { transform: translateY(0) rotate(0.9deg); } 50% { transform: translateY(-6px) rotate(-0.8deg); } }
-@keyframes tilt3 { 0%, 100% { transform: translateY(0) rotate(-1.1deg); } 50% { transform: translateY(-8px) rotate(0.5deg); } }
-@keyframes tilt4 { 0%, 100% { transform: translateY(0) rotate(0.6deg); } 50% { transform: translateY(-5px) rotate(-1deg); } }
-@keyframes tilt5 { 0%, 100% { transform: translateY(0) rotate(-0.5deg); } 50% { transform: translateY(-9px) rotate(0.9deg); } }
+/* Cards drift like things floating in a slow current. */
+@keyframes float1 { 0%, 100% { transform: translate3d(0, 0, 0) rotate(-0.4deg); } 50% { transform: translate3d(0, -6px, 0) rotate(0.4deg); } }
+@keyframes float2 { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0.5deg); } 50% { transform: translate3d(0, -5px, 0) rotate(-0.4deg); } }
+@keyframes float3 { 0%, 100% { transform: translate3d(0, 0, 0) rotate(-0.6deg); } 50% { transform: translate3d(0, -7px, 0) rotate(0.3deg); } }
 
-.animate-wave-sway-1 { animation: tilt1 7s ease-in-out infinite; }
-.animate-wave-sway-2 { animation: tilt2 8.5s ease-in-out infinite; animation-delay: -1.5s; }
-.animate-wave-sway-3 { animation: tilt3 7.5s ease-in-out infinite; animation-delay: -3.5s; }
-.animate-wave-sway-4 { animation: tilt4 9s ease-in-out infinite; animation-delay: -1s; }
-.animate-wave-sway-5 { animation: tilt5 6.5s ease-in-out infinite; animation-delay: -4s; }
-.animate-wave-sway-6 { animation: tilt1 8s ease-in-out infinite; animation-delay: -2.5s; }
-.animate-wave-sway-7 { animation: tilt2 9.5s ease-in-out infinite; animation-delay: -5s; }
-.animate-wave-sway-8 { animation: tilt3 6s ease-in-out infinite; animation-delay: -0.5s; }
-.animate-wave-sway-9 { animation: tilt4 8.8s ease-in-out infinite; animation-delay: -6s; }
-.animate-wave-sway-10 { animation: tilt5 7.2s ease-in-out infinite; animation-delay: -3.8s; }
+.animate-wave-sway-1 { animation: float1 8s ease-in-out infinite; }
+.animate-wave-sway-2 { animation: float2 9.5s ease-in-out infinite; animation-delay: -1.5s; }
+.animate-wave-sway-3 { animation: float3 8.5s ease-in-out infinite; animation-delay: -3.5s; }
+.animate-wave-sway-4 { animation: float1 10s ease-in-out infinite; animation-delay: -1s; }
+.animate-wave-sway-5 { animation: float2 7.5s ease-in-out infinite; animation-delay: -4s; }
+.animate-wave-sway-6 { animation: float3 9s ease-in-out infinite; animation-delay: -2.5s; }
+.animate-wave-sway-7 { animation: float1 10.5s ease-in-out infinite; animation-delay: -5s; }
+.animate-wave-sway-8 { animation: float2 7s ease-in-out infinite; animation-delay: -0.5s; }
+.animate-wave-sway-9 { animation: float3 9.8s ease-in-out infinite; animation-delay: -6s; }
+.animate-wave-sway-10 { animation: float1 8.2s ease-in-out infinite; animation-delay: -3.8s; }
 
-/* A hovered card should settle: stop the drift so the lift reads cleanly. */
 [class*='animate-wave-sway-']:hover {
   animation-play-state: paused;
 }
 
-/*
- * The button breathed by animating `box-shadow` — a large blurred shadow
- * re-rasterised every frame, on a control that is on screen the whole visit.
- * The shadow is static now; the breathing is a ring that scales and fades,
- * which the compositor handles without the main thread.
- */
+/* On a phone, a grid of a dozen gently drifting cards is a dozen composited
+   layers re-rasterised on scroll. Keep the stillness there. */
+@media (max-width: 767px) {
+  [class*='animate-wave-sway-'] {
+    animation: none;
+  }
+}
+
 @keyframes fabRing {
-  0%, 100% { transform: scale(0.9); opacity: 0; }
-  50% { transform: scale(1); opacity: 1; }
+  0%, 100% { transform: scale(0.92); opacity: 0; }
+  50% { transform: scale(1.12); opacity: 1; }
 }
 
 .animate-fab-glow-wave {
-  /* This site's shadow is a hard offset block, not a glow. It is the design's
-     signature and it stays exactly as it was — it just no longer redraws. */
-  box-shadow: 4px 4px 0 0 var(--ink);
+  box-shadow: 0 12px 26px -12px rgb(30 106 59 / 0.8);
 }
 
-/* No `position` here: the button is already fixed, and setting one would pull
-   it out of the corner it is pinned to. */
 .animate-fab-glow-wave::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: 0 0 0 10px rgba(47, 168, 79, 0.18);
+  box-shadow: 0 0 0 8px rgb(62 155 80 / 0.22);
   pointer-events: none;
-  animation: fabRing 3s ease-in-out infinite;
+  animation: fabRing 3.2s ease-in-out infinite;
   will-change: transform, opacity;
 }
 
-/* Palm fronds and clouds in the backdrop breathe rather than sway hard. */
+/* Leaves breathe in the trade wind. The pivot is set per element. */
 @keyframes frondSway {
-  0%, 100% { transform: rotate(-2.5deg); }
-  50% { transform: rotate(2.5deg); }
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
 }
 
-.animate-frond {
-  animation: frondSway 9s ease-in-out infinite;
+.animate-frond,
+.leaf-sway {
+  animation: frondSway 8s ease-in-out infinite;
   transform-origin: bottom center;
 }
 
-/* Clouds cross the viewport, so the distance is measured in viewport widths
-   rather than in multiples of the cloud's own box. */
+.leaf-sway-slow {
+  animation: frondSway 12s ease-in-out infinite;
+}
+
 @keyframes cloudDrift {
   from { transform: translateX(-25vw); }
   to { transform: translateX(125vw); }
+}
+
+/* Fish crossing a band. The wrapper spans the band; the fish travels in vw so
+   the distance does not depend on its own size. */
+@keyframes swimRight {
+  from { transform: translate3d(-20vw, 0, 0); }
+  to { transform: translate3d(120vw, 0, 0); }
+}
+
+@keyframes swimLeft {
+  from { transform: translate3d(120vw, 0, 0) scaleX(-1); }
+  to { transform: translate3d(-20vw, 0, 0) scaleX(-1); }
+}
+
+@keyframes swimBob {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  50% { transform: translate3d(0, -14px, 0) rotate(2deg); }
+}
+
+@keyframes tailBeat {
+  0%, 100% { transform: scaleY(1) rotate(-6deg); }
+  50% { transform: scaleY(0.85) rotate(6deg); }
+}
+
+.fish-tail {
+  animation: tailBeat 0.7s ease-in-out infinite;
+}
+
+@keyframes flipperStroke {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-14deg); }
+}
+
+.flipper-l {
+  animation: flipperStroke 2.6s ease-in-out infinite;
+}
+
+.flipper-r {
+  animation: flipperStroke 2.6s ease-in-out infinite reverse;
+}
+
+@keyframes rayGlide {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.82); }
+}
+
+.ray-wings {
+  animation: rayGlide 3.4s ease-in-out infinite;
+}
+
+@keyframes wingFlutter {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(0.3); }
+}
+
+.wing-flutter {
+  animation: wingFlutter 0.09s ease-in-out infinite alternate;
+}
+
+@keyframes strandSway {
+  0%, 100% { transform: skewX(-4deg); }
+  50% { transform: skewX(4deg); }
+}
+
+.seaweed-strand {
+  animation: strandSway 5s ease-in-out infinite;
+}
+
+@keyframes bubbleRise {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translate3d(12px, -110vh, 0); opacity: 0; }
+}
+
+@keyframes glide {
+  from { transform: translate3d(-15vw, 0, 0); }
+  to { transform: translate3d(115vw, 0, 0); }
+}
+
+@keyframes bank {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  50% { transform: translate3d(0, -18px, 0) rotate(5deg); }
+}
+
+@keyframes currentDrift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-3%, 0, 0); }
+}
+
+.current-a {
+  animation: currentDrift 11s ease-in-out infinite;
+}
+
+.current-b {
+  animation: currentDrift 14s ease-in-out infinite reverse;
+}
+
+/* WebGL water fades in over its CSS fallback once the first frame is drawn. */
+.water-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.water-canvas.is-ready {
+  opacity: 1;
 }
 
 /* ── Long-form copy ─────────────────────────────────────────────────────── */
@@ -998,16 +1164,6 @@ select:focus {
 }
 
 @media (max-width: 640px) {
-  :root {
-    --stroke: 2px;
-    --shadow-ink: 4px 4px 0 0 var(--ink);
-    --shadow-ink-lg: 5px 5px 0 0 var(--ink);
-  }
-
-  .hero-glass {
-    border-radius: 24px;
-  }
-
   .section-shell {
     @apply px-4;
   }
@@ -1015,7 +1171,12 @@ select:focus {
   .section-icon {
     width: 64px;
     height: 64px;
-    font-size: 1.9rem;
+    font-size: 1.8rem;
+  }
+
+  .tropical-button,
+  .tropical-button-outline {
+    @apply px-6 py-3;
   }
 }
 
