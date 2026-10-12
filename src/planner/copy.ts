@@ -600,5 +600,26 @@ export const plannerCopy = { en, es } as const;
 
 export type PlannerCopy = CopyShape;
 
-export const getPlannerCopy = (locale: string): PlannerCopy =>
-  locale.startsWith('es') ? es : en;
+/** Replace the former hardcoded representative name throughout planner copy. */
+const personaliseCopy = <T,>(value: T, name: string): T => {
+  if (typeof value === 'string') return value.replaceAll('Francisco', name) as T;
+  if (typeof value === 'function') {
+    return ((...args: unknown[]) => {
+      const result = (value as (...input: unknown[]) => unknown)(...args);
+      return typeof result === 'string' ? result.replaceAll('Francisco', name) : result;
+    }) as T;
+  }
+  if (Array.isArray(value)) return value.map((item) => personaliseCopy(item, name)) as T;
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, personaliseCopy(item, name)])
+    ) as T;
+  }
+  return value;
+};
+
+export const getPlannerCopy = (locale: string, contactName = ''): PlannerCopy => {
+  const copy = locale.startsWith('es') ? es : en;
+  const name = contactName.trim() || (locale.startsWith('es') ? 'nuestro equipo' : 'our team');
+  return personaliseCopy(copy, name);
+};

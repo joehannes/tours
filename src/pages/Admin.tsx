@@ -20,6 +20,7 @@ const Admin: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [brandSettings, setBrandSettings] = useState<BrandSettings>({
     brandName: 'Tours',
+    contactName: '',
     phoneNumber: '+1 (809) 555-0123',
     paypalMeLink: 'https://www.paypal.com/paypalme/tours',
     verifoneLink: '',
@@ -156,6 +157,13 @@ const Admin: React.FC = () => {
                 />
                 <input
                   type="text"
+                  value={brandSettings.contactName}
+                  onChange={(event) => setBrandSettings({ ...brandSettings, contactName: event.target.value })}
+                  placeholder="Nombre de la persona de contacto (WhatsApp)"
+                  className="rounded-2xl border border-ink/15 px-4 py-3 md:col-span-2"
+                />
+                <input
+                  type="text"
                   value={brandSettings.paypalMeLink}
                   onChange={(event) => setBrandSettings({ ...brandSettings, paypalMeLink: event.target.value })}
                   placeholder="Enlace de PayPal"
@@ -202,6 +210,7 @@ const Admin: React.FC = () => {
                 </div>
                 <p><strong>Negocio:</strong> {brandSettings.brandName}</p>
                 <p><strong>Teléfono:</strong> {brandSettings.phoneNumber}</p>
+                <p><strong>Contacto:</strong> {brandSettings.contactName || '—'}</p>
                 <p><strong>PayPal:</strong> {brandSettings.paypalMeLink}</p>
                 <p><strong>Verifone:</strong> {brandSettings.verifoneLink || '—'}</p>
                 <button onClick={() => setEditingBrand(true)} className="mt-4 rounded-full bg-lagoon-dark px-5 py-2 font-semibold text-white">

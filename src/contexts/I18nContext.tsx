@@ -4,7 +4,7 @@ import enMessagesJson from '../locales/en.json';
 import esMessagesJson from '../locales/es.json';
 import { apiGet } from '../services/apiClient';
 
-type Locale = 'en' | 'es';
+export type Locale = 'en' | 'es';
 
 interface I18nContextType {
   locale: Locale;
@@ -29,7 +29,6 @@ const flattenMessages = (
 ): Record<string, string> => {
   const source = nestedMessages ?? {};
   let flattened: Record<string, string> = {};
-
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       const value = source[key as keyof typeof source];
@@ -44,7 +43,6 @@ const flattenMessages = (
       }
     }
   }
-
   return flattened;
 };
 

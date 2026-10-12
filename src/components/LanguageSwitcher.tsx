@@ -1,33 +1,43 @@
-import React from 'react';
-import { useI18n } from '../contexts/I18nContext';
+import React, { useEffect, useState } from 'react';
+import { useI18n, type Locale } from '../contexts/I18nContext';
+import SoundToggle from './SoundToggle';
+
+type CompassLocale = Locale | 'de' | 'fr';
+
+const DIRECTIONS: Array<{ code: CompassLocale; short: string; name: string; direction: 'north' | 'east' | 'south' | 'west' }> = [
+  { code: 'en', short: 'EN', name: 'English', direction: 'north' },
+  { code: 'de', short: 'DE', name: 'Deutsch', direction: 'east' },
+  { code: 'es', short: 'ES', name: 'Español', direction: 'south' },
+  { code: 'fr', short: 'FR', name: 'Français', direction: 'west' },
+];
 
 const LanguageSwitcher: React.FC = () => {
   const { locale, setLocale } = useI18n();
-
-  const selectLanguage = (lang: 'en' | 'es') => {
-    if (lang !== locale) {
-      setLocale(lang);
-    }
-  };
+  const [selectedCode, setSelectedCode] = useState<CompassLocale>(locale);
+  useEffect(() => setSelectedCode(locale), [locale]);
+  const selected = DIRECTIONS.find((item) => item.code === selectedCode) ?? DIRECTIONS[0];
 
   return (
-    <div className="language-toggle inline-flex rounded-full bg-paper p-1 shadow-lg">
-      <button
-        type="button"
-        aria-pressed={locale === 'en'}
-        onClick={() => selectLanguage('en')}
-        className={`language-toggle-button ${locale === 'en' ? 'active' : ''}`}
-      >
-        EN
-      </button>
-      <button
-        type="button"
-        aria-pressed={locale === 'es'}
-        onClick={() => selectLanguage('es')}
-        className={`language-toggle-button ${locale === 'es' ? 'active' : ''}`}
-      >
-        ES
-      </button>
+    <div className="language-compass" aria-label="Language and sound controls">
+      <span className="compass-rings" aria-hidden="true" />
+      <span className={`compass-needle compass-needle-${selected.direction}`} aria-hidden="true" />
+      {DIRECTIONS.map((language) => (
+        <button
+          key={language.code}
+          type="button"
+          title={language.name}
+          aria-label={`Switch language to ${language.name}`}
+          aria-pressed={selectedCode === language.code}
+          onClick={() => {
+            setSelectedCode(language.code);
+            if (language.code === 'en' || language.code === 'es') setLocale(language.code);
+          }}
+          className={`compass-language compass-language-${language.direction} ${selectedCode === language.code ? 'active' : ''}`}
+        >
+          {language.short}
+        </button>
+      ))}
+      <div className="compass-sound" title="Sound effects"><SoundToggle /></div>
     </div>
   );
 };

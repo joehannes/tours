@@ -27,11 +27,13 @@ const PlanMyDay: React.FC = () => {
     };
   }, [locale]);
 
-  // Every step — and the finished plan — starts at the top. Without this a
-  // guest who pressed the button near the bottom of a long card sees nothing
-  // move and assumes it did not work.
+  // Every new planner state is placed at the viewport origin immediately.
+  // A smooth scroll leaves the preceding question in view while a timed
+  // auto-advance is already showing the next one, which makes the guided flow
+  // feel as though it stalled.
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const frame = window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
+    return () => window.cancelAnimationFrame(frame);
   }, [stage, stepIndex]);
 
   return (

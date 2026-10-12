@@ -6,7 +6,6 @@ import { MdHome, MdTour, MdLocalTaxi, MdEmail, MdLibraryBooks } from 'react-icon
 import { HiSparkles } from 'react-icons/hi';
 import AdminNav from './AdminNav';
 import LanguageSwitcher from '../LanguageSwitcher';
-import SoundToggle from '../SoundToggle';
 import { useBrand } from '../../contexts/BrandContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { playClickFx, playHoverFx } from '../../lib/soundEngine';
@@ -148,7 +147,7 @@ const Signpost: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[60] overflow-y-auto"
+      className="fixed inset-0 z-[60] overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -166,8 +165,11 @@ const Signpost: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         onClick={onClose}
       />
       <div className="pointer-events-none absolute right-[12%] top-[8%] h-24 w-24 rounded-full bg-[radial-gradient(circle,#fff4c9_0%,#ffd47e_45%,transparent_70%)]" />
+      <div className="relative z-20 flex justify-center pt-4">
+        <LanguageSwitcher />
+      </div>
 
-      <div className="relative mx-auto flex min-h-full max-w-md flex-col items-center px-6 pb-10 pt-24">
+      <div className="relative mx-auto flex min-h-full max-w-md flex-col items-center px-6 pb-6 pt-2">
         {/* The post */}
         <motion.div
           className="absolute bottom-0 left-1/2 top-20 w-5 -translate-x-1/2 rounded-t-lg bg-gradient-to-r from-[#B58A5E] via-[#9A6E45] to-[#7A5434] shadow-ink"
@@ -230,15 +232,6 @@ const Signpost: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           })}
         </div>
 
-        <motion.div
-          className="relative z-10 mt-10 flex items-center gap-3 rounded-pebble bg-paper-card/95 px-4 py-3 shadow-ink-lg"
-          initial={reduced ? false : { opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <LanguageSwitcher />
-          <SoundToggle />
-        </motion.div>
       </div>
     </motion.div>
   );
@@ -253,7 +246,6 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const reduced = useReducedMotion();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [vineGone, setVineGone] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!getAdminPassword());
   const lang = locale === 'es' ? 'es' : 'en';
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -262,13 +254,6 @@ const Header: React.FC = () => {
     const handleAuthChange = () => setIsAuthenticated(!!getAdminPassword());
     window.addEventListener('authChange', handleAuthChange);
     return () => window.removeEventListener('authChange', handleAuthChange);
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setVineGone(window.scrollY > 170);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
@@ -303,7 +288,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="relative z-50 h-[5rem] lg:h-[9rem]">
+      <header className="fixed inset-x-4 top-3 z-50 h-[5rem] lg:h-[9rem]">
         {/* Phones: a pebble with the logo and the name. */}
         <Link
           to="/#top"
@@ -315,7 +300,7 @@ const Header: React.FC = () => {
         </Link>
 
         {/* Wide screens: the vine. */}
-        <div className="absolute inset-0 hidden lg:block">
+        <div className="absolute inset-0 hidden overflow-hidden rounded-[2.5rem] border-[3px] border-ink bg-gradient-to-r from-[#0b7f86] via-lagoon to-lagoon-light shadow-ink-lg lg:block">
           <Vine />
           <div className="section-shell relative flex h-full items-start justify-between">
             <Link
@@ -335,7 +320,7 @@ const Header: React.FC = () => {
                 <span className="h-5 w-0.5 bg-[#8A5E3B]" />
                 <Logo className="h-24 w-24" />
               </motion.div>
-              <span className="mt-12 font-display text-2xl font-bold text-ink transition-colors group-hover:text-lagoon-dark">
+              <span className="desktop-brand-name mt-10 transition-colors group-hover:text-paper">
                 {brandSettings.brandName}
               </span>
             </Link>
@@ -376,30 +361,15 @@ const Header: React.FC = () => {
                   </motion.div>
                 );
               })}
-              <div className="ml-2 mt-6 flex items-center gap-2 rounded-pebble bg-paper-card/90 px-2 py-1.5 shadow-ink">
+              <div className="ml-2 mt-4 flex items-center gap-2">
                 <LanguageSwitcher />
-                <SoundToggle />
               </div>
             </nav>
           </div>
         </div>
       </header>
 
-      {/* The life ring: always on a phone, on a wide screen once the vine is gone. */}
-      <AnimatePresence>
-        {(vineGone || menuOpen) && (
-          <motion.div
-            key="ring-wide"
-            className="fixed right-5 top-4 z-[70] hidden lg:block"
-            initial={{ y: -90, rotate: -90 }}
-            animate={{ y: 0, rotate: 0 }}
-            exit={{ y: -90, rotate: 90 }}
-            transition={{ type: 'spring', stiffness: 160, damping: 14 }}
-          >
-            <LifeRing open={menuOpen} label={ringLabel} onClick={() => { playClickFx(); setMenuOpen((v) => !v); }} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* The full-page signpost remains a mobile-only menu. */}
       <div className="fixed right-3 top-3 z-[70] lg:hidden">
         <LifeRing open={menuOpen} label={ringLabel} onClick={() => { playClickFx(); setMenuOpen((v) => !v); }} />
       </div>

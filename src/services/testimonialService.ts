@@ -16,42 +16,8 @@ export interface TestimonialRecord {
   approved?: boolean;
 }
 
-/**
- * Shown when the site has no reviews of its own yet.
- *
- * These are examples, not this operator's reviews. They are what a fresh
- * install displays so the section is not an empty hole, and the moment KV
- * holds anything they are gone.
- */
-const defaultTestimonials: TestimonialRecord[] = [
-  {
-    id: '1',
-    name: 'Sarah Martinez',
-    email: 'sarah@example.com',
-    review:
-      'The quad adventure was absolutely incredible! Our guide knew everything about the jungle, and the cenote was so refreshing. Best day of our vacation!',
-    rating: 5,
-    createdAt: '2024-03-15',
-  },
-  {
-    id: '2',
-    name: 'Michael Johnson',
-    email: 'michael@example.com',
-    review:
-      'The Saona Island party boat exceeded all expectations. The energy was infectious, the food was delicious, and the snorkeling was amazing. Definitely doing it again next year!',
-    rating: 5,
-    createdAt: '2024-03-10',
-  },
-  {
-    id: '3',
-    name: 'Emma García',
-    email: 'emma@example.com',
-    review:
-      'Las cascadas de Samaná fueron hermosas. La caminata fue perfecta, el guía muy atento, y las fotos quedaron espectaculares. Una experiencia que nunca voy a olvidar.',
-    rating: 5,
-    createdAt: '2024-03-05',
-  },
-];
+/** A new site begins with no reviews — never with invented guest feedback. */
+const defaultTestimonials: TestimonialRecord[] = [];
 
 const unwrapTestimonialPayload = (payload: unknown): TestimonialRecord[] => {
   const record = (payload as Record<string, unknown>)?.record ?? payload;

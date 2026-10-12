@@ -10,6 +10,8 @@ export interface PaymentVisibility {
 
 export interface BrandSettings {
   brandName: string;
+  /** The named person guests will speak with on WhatsApp and in the planner. */
+  contactName: string;
   phoneNumber: string;
   paypalMeLink: string;
   /**
@@ -37,6 +39,7 @@ export interface BrandSettings {
 
 const defaultBrandSettings: BrandSettings = {
   brandName: 'Tours',
+  contactName: '',
   // Nothing here that takes money or rings a phone has a default. See the
   // normaliser below for why.
   phoneNumber: '',
@@ -61,6 +64,7 @@ const normalizeBrandSettings = (input: Partial<BrandSettings> | null | undefined
     typeof input?.brandName === 'string' && input.brandName.trim()
       ? input.brandName
       : defaultBrandSettings.brandName,
+  contactName: typeof input?.contactName === 'string' ? input.contactName.trim() : '',
   /**
    * A contact detail or a payment link that is not set stays NOT SET.
    *

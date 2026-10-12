@@ -26,6 +26,7 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
   // was never configured — not even for that one render.
   const [brandSettings, setBrandSettings] = useState<BrandSettings>({
     brandName: 'Tours',
+    contactName: '',
     phoneNumber: '',
     paypalMeLink: '',
     verifoneLink: '',
