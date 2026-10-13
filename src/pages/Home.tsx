@@ -8,7 +8,7 @@ import TestimonialDisplay from '../components/TestimonialDisplay';
 import SocialMediaVideos from '../components/SocialMediaVideos';
 import FABWhatsApp from '../components/FABWhatsApp';
 import { useBrand } from '../contexts/BrandContext';
-import { useI18n } from '../contexts/I18nContext';
+import { getContentLocale, useI18n } from '../contexts/I18nContext';
 import { generateWhatsAppMessage } from '../utils/whatsapp';
 import { generateBlogListStructuredData } from '../utils/seoHelpers';
 import { getIntroStoryPreferred, StoryData } from '../services/introStoryService';
@@ -28,12 +28,13 @@ const Home: React.FC = () => {
   const { brandSettings } = useBrand();
   const { locale } = useI18n();
   const { blogArticles } = useBlog();
+  const contentLocale = getContentLocale(locale);
   const navigate = useNavigate();
   const [storyData, setStoryData] = useState<StoryData | null>(null);
   // The two water bands listen to the pointer across their whole section.
   const sunsetRef = useRef<HTMLElement>(null);
   const reefRef = useRef<HTMLElement>(null);
-  const seoArticles = blogArticles[locale] ?? [];
+  const seoArticles = blogArticles[contentLocale] ?? [];
   const hiddenBlogStyle = {
     position: 'absolute' as const,
     left: '-9999px',
@@ -46,7 +47,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     let isCurrent = true;
 
-    getIntroStoryPreferred(locale).then((data) => {
+    getIntroStoryPreferred(contentLocale).then((data) => {
       if (isCurrent) {
         setStoryData(data);
       }
@@ -55,7 +56,7 @@ const Home: React.FC = () => {
     return () => {
       isCurrent = false;
     };
-  }, [locale]);
+  }, [contentLocale]);
 
   useEffect(() => {
     if (seoArticles.length === 0) {
@@ -347,7 +348,7 @@ const Home: React.FC = () => {
 
       {/* SEO: Hidden blog articles for search engine indexing */}
       <div className="hidden h-0 w-0 overflow-hidden">
-        {blogArticles[locale]?.map((article) => (
+        {blogArticles[contentLocale]?.map((article) => (
           <article key={article.id} data-article-id={article.slug}>
             <h3>{article.title}</h3>
             {article.tour && <p>Related tour: {article.tour}</p>}

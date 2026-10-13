@@ -4,7 +4,7 @@ import { MdTour, MdEvent } from 'react-icons/md';
 import { useBrand } from '../contexts/BrandContext';
 import PageHeader from '../components/layout/PageHeader';
 import { Toucan, PalmFrond } from '../components/ui/Illustrations';
-import { useI18n } from '../contexts/I18nContext';
+import { getContentLocale, useI18n } from '../contexts/I18nContext';
 import { useBlog } from '../contexts/BlogContext';
 import { generateBlogPageMeta, generateBlogListStructuredData } from '../utils/seoHelpers';
 import ArticleBody from '../components/ui/ArticleBody';
@@ -13,7 +13,7 @@ const Blog = () => {
   const { locale } = useI18n();
   const { brandSettings } = useBrand();
   const { blogArticles, loading, error } = useBlog();
-  const articles = blogArticles[locale] ?? [];
+  const articles = blogArticles[getContentLocale(locale)] ?? [];
 
   useEffect(() => {
     const pageTitle = `${locale === 'es' ? 'Blog' : 'Blog'} | ${brandSettings.brandName}`;

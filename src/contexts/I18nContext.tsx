@@ -2,9 +2,14 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { IntlProvider } from 'react-intl';
 import enMessagesJson from '../locales/en.json';
 import esMessagesJson from '../locales/es.json';
+import frMessagesJson from '../locales/fr.json';
+import deMessagesJson from '../locales/de.json';
 import { apiGet } from '../services/apiClient';
 
-export type Locale = 'en' | 'es';
+export type Locale = 'en' | 'es' | 'fr' | 'de';
+/** Content records are presently maintained in English and Spanish only. */
+export type ContentLocale = 'en' | 'es';
+export const getContentLocale = (locale: Locale): ContentLocale => (locale === 'es' ? 'es' : 'en');
 
 interface I18nContextType {
   locale: Locale;
@@ -49,9 +54,16 @@ const flattenMessages = (
 const fallbackMessages: Record<Locale, Record<string, string>> = {
   en: flattenMessages(enMessagesJson as unknown as Record<string, unknown>),
   es: flattenMessages(esMessagesJson as unknown as Record<string, unknown>),
+  fr: flattenMessages(frMessagesJson as unknown as Record<string, unknown>),
+  de: flattenMessages(deMessagesJson as unknown as Record<string, unknown>),
 };
 
 const fetchMessages = async (locale: Locale): Promise<Record<string, string>> => {
+  // French and German are shipped with the frontend. The content API currently
+  // stores only English/Spanish records, so asking it for these locales would
+  // only create a needless 404 before returning the same local translation.
+  if (locale === 'fr' || locale === 'de') return fallbackMessages[locale];
+
   try {
     const data = await apiGet<unknown>('translations', { locale });
     const nestedMessages = (data as Record<string, unknown>)?.record ?? data;

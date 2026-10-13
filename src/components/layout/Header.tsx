@@ -29,26 +29,26 @@ interface NavItem {
   id: string;
   fallback: string;
   icon: React.ReactNode;
-  note: { en: string; es: string };
+  note: Record<'en' | 'es' | 'fr' | 'de', string>;
   accent?: 'mango';
   match: (path: string) => boolean;
 }
 
 const NAV: NavItem[] = [
-  { to: '/#top', id: 'nav.home', fallback: 'Home', icon: <MdHome />, note: { en: 'the beach', es: 'la playa' }, match: (p) => p === '/' },
+  { to: '/#top', id: 'nav.home', fallback: 'Home', icon: <MdHome />, note: { en: 'the beach', es: 'la playa', fr: 'la plage', de: 'der Strand' }, match: (p) => p === '/' },
   {
     to: '/plan#top',
     id: 'nav.plan',
     fallback: 'Plan',
     icon: <HiSparkles />,
-    note: { en: 'my day', es: 'mi día' },
+    note: { en: 'my day', es: 'mi día', fr: 'ma journée', de: 'mein Tag' },
     accent: 'mango',
     match: (p) => p.startsWith('/plan'),
   },
-  { to: '/tours#top', id: 'nav.tours', fallback: 'Tours', icon: <MdTour />, note: { en: 'excursions', es: 'excursiones' }, match: (p) => p.startsWith('/tours') || p.startsWith('/details/tours') },
-  { to: '/transport#top', id: 'nav.transport', fallback: 'Transport', icon: <MdLocalTaxi />, note: { en: 'rides', es: 'traslados' }, match: (p) => p.startsWith('/transport') },
-  { to: '/blog#top', id: 'nav.blog', fallback: 'Blog', icon: <MdLibraryBooks />, note: { en: 'stories', es: 'historias' }, match: (p) => p.startsWith('/blog') },
-  { to: '/contact#top', id: 'nav.contact', fallback: 'Contact', icon: <MdEmail />, note: { en: 'say hola', es: 'di hola' }, match: (p) => p.startsWith('/contact') },
+  { to: '/tours#top', id: 'nav.tours', fallback: 'Tours', icon: <MdTour />, note: { en: 'excursions', es: 'excursiones', fr: 'excursions', de: 'Ausflüge' }, match: (p) => p.startsWith('/tours') || p.startsWith('/details/tours') },
+  { to: '/transport#top', id: 'nav.transport', fallback: 'Transport', icon: <MdLocalTaxi />, note: { en: 'rides', es: 'traslados', fr: 'trajets', de: 'Fahrten' }, match: (p) => p.startsWith('/transport') },
+  { to: '/blog#top', id: 'nav.blog', fallback: 'Blog', icon: <MdLibraryBooks />, note: { en: 'stories', es: 'historias', fr: 'histoires', de: 'Geschichten' }, match: (p) => p.startsWith('/blog') },
+  { to: '/contact#top', id: 'nav.contact', fallback: 'Contact', icon: <MdEmail />, note: { en: 'say hola', es: 'di hola', fr: 'dites hola', de: 'sag hallo' }, match: (p) => p.startsWith('/contact') },
 ];
 
 const STRINGS = [22, 40, 28, 46, 30, 38];
@@ -117,12 +117,14 @@ const LifeRing: React.FC<{ open: boolean; onClick: () => void; label: string }> 
 const Logo: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { brandSettings } = useBrand();
   return (
-    <div className={`overflow-hidden rounded-full bg-gradient-to-br from-mango-light to-mango shadow-ink ring-4 ring-paper-card ${className}`}>
-      {brandSettings.brandicon ? (
-        <img src={brandSettings.brandicon} alt="Logo" className="h-full w-full object-cover" />
-      ) : (
-        <img src="/competitor-logo.svg" alt="Logo" className="h-full w-full p-2" />
-      )}
+    <div className={`brand-logo relative rounded-full ${className}`}>
+      <div className="brand-logo-image h-full w-full overflow-hidden rounded-full">
+        {brandSettings.brandicon ? (
+          <img src={brandSettings.brandicon} alt="Logo" className="h-full w-full object-cover" />
+        ) : (
+          <img src="/competitor-logo.svg" alt="Logo" className="h-full w-full p-2" />
+        )}
+      </div>
     </div>
   );
 };
@@ -132,7 +134,6 @@ const Signpost: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const location = useLocation();
   const { locale } = useI18n();
   const reduced = useReducedMotion();
-  const lang = locale === 'es' ? 'es' : 'en';
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -223,7 +224,7 @@ const Signpost: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       <span className="font-display text-xl font-bold">
                         <FormattedMessage id={item.id} defaultMessage={item.fallback} />
                       </span>
-                      <span className={`font-accent text-base ${active ? 'text-white/85' : 'text-ink/60'}`}>{item.note[lang]}</span>
+                      <span className={`font-accent text-base ${active ? 'text-white/85' : 'text-ink/60'}`}>{item.note[locale]}</span>
                     </span>
                   </span>
                 </Link>
@@ -247,7 +248,6 @@ const Header: React.FC = () => {
   const reduced = useReducedMotion();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!getAdminPassword());
-  const lang = locale === 'es' ? 'es' : 'en';
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
@@ -284,7 +284,7 @@ const Header: React.FC = () => {
     );
   }
 
-  const ringLabel = lang === 'es' ? 'Abrir el letrero de la playa' : 'Open the beach signpost';
+  const ringLabel = locale === 'es' ? 'Abrir el letrero de la playa' : locale === 'fr' ? 'Ouvrir le panneau de plage' : locale === 'de' ? 'Strandwegweiser öffnen' : 'Open the beach signpost';
 
   return (
     <>
@@ -296,11 +296,11 @@ const Header: React.FC = () => {
           className="absolute left-4 top-3 flex items-center gap-2.5 no-underline lg:hidden"
         >
           <Logo className="h-14 w-14" />
-          <span className="max-w-[11rem] font-display text-lg font-bold leading-tight text-ink">{brandSettings.brandName}</span>
+          <span className="brand-name-crystal max-w-[11rem] text-lg leading-tight">{brandSettings.brandName}</span>
         </Link>
 
         {/* Wide screens: the vine. */}
-        <div className="absolute inset-0 hidden overflow-hidden rounded-[2.5rem] border-[3px] border-ink bg-gradient-to-r from-[#0b7f86] via-lagoon to-lagoon-light shadow-ink-lg lg:block">
+        <div className="absolute inset-x-0 top-0 hidden h-[8.5rem] overflow-visible lg:block">
           <Vine />
           <div className="section-shell relative flex h-full items-start justify-between">
             <Link
@@ -320,7 +320,7 @@ const Header: React.FC = () => {
                 <span className="h-5 w-0.5 bg-[#8A5E3B]" />
                 <Logo className="h-24 w-24" />
               </motion.div>
-              <span className="desktop-brand-name mt-10 transition-colors group-hover:text-paper">
+              <span className="desktop-brand-name brand-name-crystal mt-10">
                 {brandSettings.brandName}
               </span>
             </Link>
@@ -355,7 +355,7 @@ const Header: React.FC = () => {
                       >
                         <span className="vine-tag-icon">{item.icon}</span>
                         <FormattedMessage id={item.id} defaultMessage={item.fallback} />
-                        <span className="vine-tag-note">{item.note[lang]}</span>
+                        <span className="vine-tag-note">{item.note[locale]}</span>
                       </Link>
                     </motion.div>
                   </motion.div>

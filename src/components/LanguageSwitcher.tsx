@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useI18n, type Locale } from '../contexts/I18nContext';
 import SoundToggle from './SoundToggle';
 
-type CompassLocale = Locale | 'de' | 'fr';
-
-const DIRECTIONS: Array<{ code: CompassLocale; short: string; name: string; direction: 'north' | 'east' | 'south' | 'west' }> = [
+const DIRECTIONS: Array<{ code: Locale; short: string; name: string; direction: 'north' | 'east' | 'south' | 'west' }> = [
   { code: 'en', short: 'EN', name: 'English', direction: 'north' },
   { code: 'de', short: 'DE', name: 'Deutsch', direction: 'east' },
   { code: 'es', short: 'ES', name: 'Español', direction: 'south' },
@@ -13,7 +11,7 @@ const DIRECTIONS: Array<{ code: CompassLocale; short: string; name: string; dire
 
 const LanguageSwitcher: React.FC = () => {
   const { locale, setLocale } = useI18n();
-  const [selectedCode, setSelectedCode] = useState<CompassLocale>(locale);
+  const [selectedCode, setSelectedCode] = useState<Locale>(locale);
   useEffect(() => setSelectedCode(locale), [locale]);
   const selected = DIRECTIONS.find((item) => item.code === selectedCode) ?? DIRECTIONS[0];
 
@@ -30,7 +28,7 @@ const LanguageSwitcher: React.FC = () => {
           aria-pressed={selectedCode === language.code}
           onClick={() => {
             setSelectedCode(language.code);
-            if (language.code === 'en' || language.code === 'es') setLocale(language.code);
+            setLocale(language.code);
           }}
           className={`compass-language compass-language-${language.direction} ${selectedCode === language.code ? 'active' : ''}`}
         >

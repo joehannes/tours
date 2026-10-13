@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link, useParams } from 'react-router-dom';
-import { useI18n } from '../contexts/I18nContext';
+import { getContentLocale, useI18n } from '../contexts/I18nContext';
 import { ServiceCategory, Tour, getServicesByCategory } from '../services/toursService';
 import { useBrand } from '../contexts/BrandContext';
 import { generateWhatsAppMessage } from '../utils/whatsapp';
@@ -21,7 +21,7 @@ const ServiceDetails: React.FC = () => {
 
   useEffect(() => {
     const loadService = async () => {
-      const services = await getServicesByCategory(category as ServiceCategory, locale);
+      const services = await getServicesByCategory(category as ServiceCategory, getContentLocale(locale));
       const routeId = id.split('-')[0];
       const match = services.find((item) => String(item.id) === routeId) ?? null;
       setService(match);

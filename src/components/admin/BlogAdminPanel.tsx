@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useI18n } from '../../contexts/I18nContext';
+import { getContentLocale, useI18n } from '../../contexts/I18nContext';
 import { BlogArticle, getBlogArticles, deleteBlogArticle, toggleBlogArticleVisibility } from '../../services/blogService';
 import { FaTrash, FaEye, FaEyeSlash } from 'react-icons/fa';
 
@@ -10,7 +10,7 @@ const BlogAdminPanel: React.FC = () => {
 
   const fetchArticles = async () => {
     setLoading(true);
-    const data = await getBlogArticles(locale);
+    const data = await getBlogArticles(getContentLocale(locale));
     setArticles(data);
     setLoading(false);
   };
@@ -20,7 +20,7 @@ const BlogAdminPanel: React.FC = () => {
   }, [locale]);
 
   const handleToggleVisibility = async (id: string) => {
-    const success = await toggleBlogArticleVisibility(id, locale);
+    const success = await toggleBlogArticleVisibility(id, getContentLocale(locale));
     if (success) {
       setArticles(prev => prev.map(a => a.id === id ? { ...a, visible: !a.visible } : a));
     } else {
@@ -30,7 +30,7 @@ const BlogAdminPanel: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Seguro que quieres eliminar esta entrada del blog para siempre?')) return;
-    const success = await deleteBlogArticle(id, locale);
+    const success = await deleteBlogArticle(id, getContentLocale(locale));
     if (success) {
       setArticles(prev => prev.filter(a => a.id !== id));
     } else {
