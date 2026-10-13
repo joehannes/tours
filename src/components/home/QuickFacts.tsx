@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePlanner } from '../../contexts/PlannerContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { useBrand } from '../../contexts/BrandContext';
+import { getPublishedTestimonials, getRatingVisibility } from '../../services/testimonialService';
 import { Sailboat, Starfish, Hibiscus, Cocktail } from '../ui/Illustrations';
 
 /**
@@ -19,7 +21,35 @@ const SHAPES = [
 const QuickFacts: React.FC = () => {
   const { catalogue } = usePlanner();
   const { locale } = useI18n();
+  const { brandSettings } = useBrand();
   const isEs = locale === 'es';
+  const [ratingValue, setRatingValue] = useState<string>('—');
+
+  useEffect(() => {
+    let active = true;
+
+    const load = async () => {
+      const testimonials = await getPublishedTestimonials();
+      if (!active) return;
+      const range = brandSettings.heroRatingRange ?? { min: 3, max: 5 };
+      const result = getRatingVisibility(testimonials, {
+        enabled: brandSettings.heroRatingEnabled,
+        min: range.min,
+        max: range.max,
+      });
+      setRatingValue(result.visible && result.average !== null ? result.average.toFixed(2) : '—');
+    };
+
+    void load();
+    return () => { active = false; };
+  }, [brandSettings.heroRatingEnabled, brandSettings.heroRatingRange]);
+
+  const ratingFact = {
+    value: ratingValue,
+    label: isEs ? 'valoración media' : 'average guest rating',
+    art: <Starfish className="h-11 w-11" />,
+    tone: 'from-[#E3FBF7] to-[#93ECE1]',
+  };
 
   const facts = [
     {
@@ -28,12 +58,7 @@ const QuickFacts: React.FC = () => {
       art: <Sailboat className="h-12 w-12" />,
       tone: 'from-[#FFF1CF] to-[#FFD47E]',
     },
-    {
-      value: '4.99',
-      label: isEs ? 'valoración media' : 'average guest rating',
-      art: <Starfish className="h-11 w-11" />,
-      tone: 'from-[#E3FBF7] to-[#93ECE1]',
-    },
+    ...(ratingValue !== '—' ? [ratingFact] : []),
     {
       value: '24/7',
       label: isEs ? 'respuesta por WhatsApp' : 'WhatsApp response',

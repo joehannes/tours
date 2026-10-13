@@ -24,6 +24,11 @@ export const defaultHeroMedia: HeroMediaItem[] = [
   { url: '/imgs/tours/tour_speed_boat_detail_5.jpg', type: 'image', alt: 'Caribbean speedboat' },
 ];
 
+export interface HeroRatingRange {
+  min: number;
+  max: number;
+}
+
 export interface BrandSettings {
   brandName: string;
   /** The named person guests will speak with on WhatsApp and in the planner. */
@@ -42,6 +47,10 @@ export interface BrandSettings {
   paymentVisibility?: PaymentVisibility;
   /** The three image/video cards that appear beside the home-page welcome. */
   heroMedia?: HeroMediaItem[];
+  /** Whether the average guest rating bubble is shown on the home-page hero. */
+  heroRatingEnabled?: boolean;
+  /** Range in stars that counts as a passing guest rating for the banner. */
+  heroRatingRange?: HeroRatingRange;
 }
 
 /**
@@ -67,6 +76,8 @@ const defaultBrandSettings: BrandSettings = {
   stripeEnabled: false,
   paymentVisibility: { stripe: true, paypal: true, cash: true },
   heroMedia: defaultHeroMedia,
+  heroRatingEnabled: true,
+  heroRatingRange: { min: 3, max: 5 },
 };
 
 const normalizePaymentVisibility = (input: unknown): PaymentVisibility => {
@@ -91,11 +102,20 @@ const normalizeHeroMedia = (input: unknown): HeroMediaItem[] => {
   });
 };
 
+const normalizeHeroRatingRange = (input: unknown): HeroRatingRange => {
+  const source = (input ?? {}) as Record<string, unknown>;
+  const min = typeof source.min === 'number' ? source.min : 3;
+  const max = typeof source.max === 'number' ? source.max : 5;
+  const safeMin = Math.min(Math.max(Number.isFinite(min) ? min : 3, 1), 5);
+  const safeMax = Math.min(Math.max(Number.isFinite(max) ? max : 5, safeMin), 5);
+  return { min: safeMin, max: safeMax };
+};
+
 const normalizeBrandSettings = (input: Partial<BrandSettings> | null | undefined): BrandSettings => ({
   brandName:
-    typeof input?.brandName === 'string' && input.brandName.trim()
-      ? input.brandName
-      : defaultBrandSettings.brandName,
+   typeof input?.brandName === 'string' && input.brandName.trim()
+     ? input.brandName
+     : defaultBrandSettings.brandName,
   contactName: typeof input?.contactName === 'string' ? input.contactName.trim() : '',
   /**
    * A contact detail or a payment link that is not set stays NOT SET.
@@ -112,12 +132,14 @@ const normalizeBrandSettings = (input: Partial<BrandSettings> | null | undefined
   paypalMeLink: typeof input?.paypalMeLink === 'string' ? input.paypalMeLink : '',
   verifoneLink: typeof input?.verifoneLink === 'string' ? input.verifoneLink : '',
   brandicon:
-    typeof input?.brandicon === 'string' && input.brandicon.trim()
-      ? input.brandicon
-      : defaultBrandSettings.brandicon,
+   typeof input?.brandicon === 'string' && input.brandicon.trim()
+     ? input.brandicon
+     : defaultBrandSettings.brandicon,
   stripeEnabled: typeof input?.stripeEnabled === 'boolean' ? input.stripeEnabled : false,
   paymentVisibility: normalizePaymentVisibility(input?.paymentVisibility),
   heroMedia: normalizeHeroMedia(input?.heroMedia),
+  heroRatingEnabled: typeof input?.heroRatingEnabled === 'boolean' ? input.heroRatingEnabled : true,
+  heroRatingRange: normalizeHeroRatingRange(input?.heroRatingRange),
 });
 
 export const getBrandSettings = async (): Promise<BrandSettings> => {

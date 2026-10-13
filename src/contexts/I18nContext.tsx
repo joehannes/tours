@@ -59,18 +59,13 @@ const fallbackMessages: Record<Locale, Record<string, string>> = {
 };
 
 const fetchMessages = async (locale: Locale): Promise<Record<string, string>> => {
-  // French and German are shipped with the frontend. The content API currently
-  // stores only English/Spanish records, so asking it for these locales would
-  // only create a needless 404 before returning the same local translation.
-  if (locale === 'fr' || locale === 'de') return fallbackMessages[locale];
-
   try {
     const data = await apiGet<unknown>('translations', { locale });
     const nestedMessages = (data as Record<string, unknown>)?.record ?? data;
     const remoteFlattened = flattenMessages(nestedMessages as Record<string, unknown>);
     return { ...fallbackMessages[locale], ...remoteFlattened };
   } catch (error) {
-    console.error(`Failed to fetch ${locale} messages:`, error);
+    console.warn(`Failed to fetch ${locale} messages from the API, using the bundled translations instead.`, error);
     return fallbackMessages[locale];
   }
 };

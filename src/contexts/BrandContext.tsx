@@ -33,6 +33,8 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
     brandicon: '',
     stripeEnabled: false,
     paymentVisibility: { stripe: true, paypal: true, cash: true },
+    heroRatingEnabled: true,
+    heroRatingRange: { min: 3, max: 5 },
   });
 
   useEffect(() => {

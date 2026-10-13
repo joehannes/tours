@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
+import { FaStar } from 'react-icons/fa';
 import { HiArrowDown, HiCheck, HiShieldCheck } from 'react-icons/hi';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useDeferredVideo } from '../lib/useDeferredVideo';
@@ -8,6 +9,7 @@ import { useBrand } from '../contexts/BrandContext';
 import { HeroMediaItem } from '../services/brandService';
 import { useI18n } from '../contexts/I18nContext';
 import { playClickFx, playHoverFx } from '../lib/soundEngine';
+import { getPublishedTestimonials, getRatingVisibility } from '../services/testimonialService';
 import LagoonWater from './water/LagoonWater';
 import { GlidingBirds, LeafCanopy, PointerHummingbird } from './nature/Nature';
 import { Hibiscus, MonsteraLeaf, Fern } from './ui/Illustrations';
@@ -46,6 +48,27 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage, backgroundVideo }) => {
       ];
   const showVideo = useDeferredVideo(heroMedia.some((item) => item.type === 'video'));
   const [touched, setTouched] = useState(false);
+  const [ratingBadge, setRatingBadge] = useState<{ average: number; visible: boolean } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadRating = async () => {
+      const testimonials = await getPublishedTestimonials();
+      if (!active) return;
+
+      const range = brandSettings.heroRatingRange ?? { min: 3, max: 5 };
+      const result = getRatingVisibility(testimonials, {
+        enabled: brandSettings.heroRatingEnabled,
+        min: range.min,
+        max: range.max,
+      });
+      setRatingBadge(result.visible ? { average: result.average ?? 0, visible: true } : null);
+    };
+
+    void loadRating();
+    return () => { active = false; };
+  }, [brandSettings.heroRatingEnabled, brandSettings.heroRatingRange]);
 
   // The copy drifts up a little slower than the page, the sand stays put.
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
@@ -199,13 +222,16 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage, backgroundVideo }) => {
                 <div className="hero-media-window h-44 sm:h-52">
                   {renderMedia(heroMedia[0], 'h-full w-full object-cover photo-pop')}
                 </div>
-                <div className="flex items-center justify-between px-2 pb-1 pt-3">
+                <div className="flex items-center justify-between gap-3 px-2 pb-1 pt-3">
                   <p className="font-accent text-xl leading-none text-lagoon-dark sm:text-2xl">
                     {isEs ? 'Saludos desde Bávaro' : 'Greetings from Bávaro'}
                   </p>
-                  <span className="grid h-10 w-10 place-items-center rounded-pebble bg-mango-light font-display text-sm font-bold text-ink sm:h-11 sm:w-11">
-                    4.99
-                  </span>
+                  {ratingBadge && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-mango-light px-2.5 py-1.5 font-display text-[0.72rem] font-bold text-ink shadow-sm sm:text-sm">
+                      <FaStar className="text-mango-dark" aria-hidden="true" />
+                      {ratingBadge.average.toFixed(2)}
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>

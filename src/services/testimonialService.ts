@@ -19,6 +19,33 @@ export interface TestimonialRecord {
 /** A new site begins with no reviews — never with invented guest feedback. */
 const defaultTestimonials: TestimonialRecord[] = [];
 
+export const getAverageRating = (testimonials: TestimonialRecord[]): number | null => {
+  const visible = testimonials.filter((testimonial) => testimonial.approved !== false);
+  if (!visible.length) {
+    return null;
+  }
+
+  const total = visible.reduce((sum, testimonial) => sum + Number(testimonial.rating || 0), 0);
+  return Number((total / visible.length).toFixed(2));
+};
+
+export const getRatingVisibility = (
+  testimonials: TestimonialRecord[],
+  options?: { enabled?: boolean; min?: number; max?: number }
+): { visible: boolean; average: number | null; count: number } => {
+  const approved = testimonials.filter((testimonial) => testimonial.approved !== false);
+  const average = getAverageRating(approved);
+  const enabled = options?.enabled ?? true;
+  const min = Math.min(Math.max(options?.min ?? 3, 1), 5);
+  const max = Math.min(Math.max(options?.max ?? 5, min), 5);
+
+  return {
+    visible: enabled && approved.length > 0 && average !== null && average >= min && average <= max,
+    average,
+    count: approved.length,
+  };
+};
+
 const unwrapTestimonialPayload = (payload: unknown): TestimonialRecord[] => {
   const record = (payload as Record<string, unknown>)?.record ?? payload;
   if (Array.isArray((record as Record<string, unknown>)?.testimonials)) {
