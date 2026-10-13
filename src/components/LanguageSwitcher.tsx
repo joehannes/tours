@@ -10,10 +10,10 @@ const DIRECTIONS: Array<{ code: Locale; short: string; name: string; direction: 
 ];
 
 const FLAG_BACKGROUNDS: Record<Locale, string> = {
-  en: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(60,130,246,0.52) 30%, rgba(12,74,110,0.78) 100%)',
-  de: 'linear-gradient(135deg, rgba(255,205,0,0.7) 0 33%, rgba(0,0,0,0.18) 33% 66%, rgba(255,0,0,0.72) 66% 100%)',
-  es: 'linear-gradient(135deg, rgba(255,205,0,0.72) 0 33%, rgba(255,255,255,0.88) 33% 66%, rgba(198,40,40,0.82) 66% 100%)',
-  fr: 'linear-gradient(135deg, rgba(0,85,164,0.75) 0 33%, rgba(255,255,255,0.9) 33% 66%, rgba(239,65,53,0.8) 66% 100%)',
+  en: 'linear-gradient(135deg, rgba(1,33,105,0.9) 0 24%, rgba(255,255,255,0.9) 24% 42%, rgba(1,33,105,0.9) 42% 58%, rgba(255,255,255,0.9) 58% 76%, rgba(200,16,46,0.82) 76% 100%)',
+  de: 'linear-gradient(180deg, rgba(0,0,0,0.95) 0 33%, rgba(221,0,0,0.82) 33% 66%, rgba(255,206,0,0.86) 66% 100%)',
+  es: 'linear-gradient(180deg, rgba(198,11,30,0.82) 0 20%, rgba(255,196,0,0.9) 20% 80%, rgba(198,11,30,0.82) 80% 100%)',
+  fr: 'linear-gradient(135deg, rgba(0,85,164,0.88) 0 33%, rgba(255,255,255,0.92) 33% 66%, rgba(239,65,53,0.82) 66% 100%)',
 };
 
 const LanguageSwitcher: React.FC = () => {
