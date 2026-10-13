@@ -414,6 +414,65 @@ a:hover {
   filter: saturate(1.1) contrast(1.03);
 }
 
+/* The home welcome uses a deliberately imperfect stack of printed snapshots.
+   The translucent wash and tape keep every source — image or video — feeling
+   like part of one small travel album. */
+.hero-polaroid {
+  position: relative;
+  overflow: hidden;
+  padding: 0.65rem;
+  border: 1px solid rgb(255 255 255 / 0.75);
+  border-radius: 0.45rem 0.85rem 0.5rem 0.7rem;
+  background: #fffaf0;
+  box-shadow: 0 16px 30px rgb(6 50 61 / 0.3), 0 3px 0 rgb(105 75 38 / 0.1);
+}
+
+.hero-polaroid::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: -0.6rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 1.35rem;
+  transform: translateX(-50%) rotate(-2deg);
+  background: repeating-linear-gradient(135deg, rgb(255 228 151 / 0.78) 0 7px, rgb(255 239 186 / 0.72) 7px 14px);
+  box-shadow: 0 1px 3px rgb(73 48 19 / 0.16);
+}
+
+.hero-polaroid-main::after,
+.hero-polaroid-small::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0.65rem;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgb(255 242 196 / 0.16), transparent 36%, rgb(15 125 130 / 0.12));
+  mix-blend-mode: soft-light;
+}
+
+.hero-media-window {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.22rem 0.5rem 0.28rem 0.42rem;
+  background: var(--paper-deep);
+}
+
+.hero-polaroid-caption {
+  margin: 0.55rem 0.2rem 0.05rem;
+  color: var(--ink);
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-polaroid {
+    animation: none !important;
+  }
+}
+
 .hero-glass {
   position: relative;
   overflow: hidden;

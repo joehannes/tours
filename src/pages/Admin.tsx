@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { getBrandSettings, saveBrandSettings, BrandSettings, uploadBrandIcon } from '../services/brandService';
 import BrandIconEditor from '../components/admin/BrandIconEditor';
+import HeroMediaAdmin from '../components/admin/HeroMediaAdmin';
 import { getTours, saveTours, Tour } from '../services/toursService';
 import { useI18n } from '../contexts/I18nContext';
 import ServiceAdminPanel from '../components/admin/ServiceAdminPanel';
@@ -176,6 +177,7 @@ const Admin: React.FC = () => {
                   placeholder="Enlace de Verifone"
                   className="rounded-2xl border border-ink/15 px-4 py-3 md:col-span-2"
                 />
+                <HeroMediaAdmin brandSettings={brandSettings} setBrandSettings={setBrandSettings} />
                 <div className="flex gap-3">
                   <button
                     onClick={async () => {

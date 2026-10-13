@@ -3,9 +3,9 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
 import { HiArrowDown, HiCheck, HiShieldCheck } from 'react-icons/hi';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { useMediaQuery } from '../lib/useMediaQuery';
 import { useDeferredVideo } from '../lib/useDeferredVideo';
 import { useBrand } from '../contexts/BrandContext';
+import { HeroMediaItem } from '../services/brandService';
 import { useI18n } from '../contexts/I18nContext';
 import { playClickFx, playHoverFx } from '../lib/soundEngine';
 import LagoonWater from './water/LagoonWater';
@@ -27,9 +27,9 @@ interface HeroProps {
  * vine of the navigation hangs over the top of it.
  *
  * On a wide screen the sand is on the left and the water on the right; on a
- * phone the beach is at the top and the lagoon below. The one piece of
- * footage floats on the water like a postcard, on wide screens only — a phone
- * never downloads it.
+ * phone the beach is at the top and the lagoon below. Three hand-cut media
+ * cards float on the water. They are deliberately present on phones too: the
+ * collage is part of the welcome, not desktop-only decoration.
  */
 const Hero: React.FC<HeroProps> = ({ backgroundImage, backgroundVideo }) => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -37,8 +37,14 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage, backgroundVideo }) => {
   const { locale } = useI18n();
   const isEs = locale === 'es';
   const reduced = useReducedMotion();
-  const wide = useMediaQuery('(min-width: 1024px)');
-  const showVideo = useDeferredVideo(Boolean(backgroundVideo) && wide);
+  const heroMedia = brandSettings.heroMedia?.length === 3
+    ? brandSettings.heroMedia
+    : [
+        { url: backgroundVideo || '', type: 'video' as const, alt: 'Buggy adventure in Punta Cana' },
+        { url: backgroundImage, type: 'image' as const, alt: 'Saona Island shore' },
+        { url: backgroundImage, type: 'image' as const, alt: 'Caribbean moments' },
+      ];
+  const showVideo = useDeferredVideo(heroMedia.some((item) => item.type === 'video'));
   const [touched, setTouched] = useState(false);
 
   // The copy drifts up a little slower than the page, the sand stays put.
@@ -48,6 +54,27 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage, backgroundVideo }) => {
   const floatY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : -160]);
 
   const image = backgroundImage || '/imgs/tours/tour_saona_island_detail_12.jpg';
+
+  const renderMedia = (item: HeroMediaItem, className: string) =>
+    item.type === 'video' && showVideo ? (
+      <video
+        className={className}
+        src={item.url}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster={image}
+        aria-label={item.alt || undefined}
+      />
+    ) : (
+      <img
+        src={item.type === 'video' ? image : item.url}
+        alt={item.alt || ''}
+        className={className}
+      />
+    );
 
   const trustSignals = [
     { icon: <HiShieldCheck className="h-4 w-4 text-jungle" />, label: isEs ? 'Equipo local con licencia' : 'Licensed local crew' },
@@ -147,10 +174,10 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage, backgroundVideo }) => {
             </motion.div>
           </motion.div>
 
-          {/* Out on the water: the postcard, a drifting flower, the hint. */}
-          <motion.div style={{ y: floatY }} className="relative hidden lg:col-span-6 lg:block lg:h-[30rem] xl:col-span-6">
+          {/* Out on the water: three imperfect little holiday keepsakes. */}
+          <motion.div style={{ y: floatY }} className="hero-media-collage relative h-[22rem] sm:h-[27rem] lg:col-span-6 lg:h-[32rem] xl:col-span-6">
             <motion.div
-              className="absolute right-4 top-6 flex items-center gap-2 font-accent text-2xl text-white"
+              className="absolute right-4 top-2 z-30 hidden items-center gap-2 font-accent text-2xl text-white lg:flex"
               initial={{ opacity: 0 }}
               animate={{ opacity: touched ? 0 : 1 }}
               transition={{ delay: touched ? 0 : 1.6, duration: 0.8 }}
@@ -163,42 +190,55 @@ const Hero: React.FC<HeroProps> = ({ backgroundImage, backgroundVideo }) => {
             </motion.div>
 
             <motion.div
-              className="absolute bottom-6 right-10 w-72 xl:w-80"
+              className="absolute bottom-1 right-[3%] z-20 w-[70%] max-w-[22rem] sm:bottom-4 sm:right-[10%] lg:bottom-5 lg:right-8 lg:w-72 xl:w-80"
               initial={{ opacity: 0, y: 40, rotate: 6 }}
               animate={{ opacity: 1, y: 0, rotate: 3 }}
               transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="animate-bob">
-                <div className="rounded-[30px_18px_34px_20px] bg-paper-card p-3 shadow-ink-xl">
-                  <div className="overflow-hidden rounded-[22px_12px_26px_14px]">
-                    {backgroundVideo && showVideo ? (
-                      <video
-                        className="h-48 w-full object-cover photo-pop"
-                        src={backgroundVideo}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        poster={image}
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <img src={image} alt="" aria-hidden="true" className="h-48 w-full object-cover photo-pop" />
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between px-2 pb-1 pt-3">
-                    <p className="font-accent text-2xl leading-none text-lagoon-dark">
-                      {isEs ? 'Saludos desde Bávaro' : 'Greetings from Bávaro'}
-                    </p>
-                    <span className="grid h-11 w-11 place-items-center rounded-pebble bg-mango-light font-display text-sm font-bold text-ink">
-                      4.99
-                    </span>
-                  </div>
+              <div className="hero-polaroid animate-wave-sway-2 hero-polaroid-main">
+                <div className="hero-media-window h-44 sm:h-52">
+                  {renderMedia(heroMedia[0], 'h-full w-full object-cover photo-pop')}
+                </div>
+                <div className="flex items-center justify-between px-2 pb-1 pt-3">
+                  <p className="font-accent text-xl leading-none text-lagoon-dark sm:text-2xl">
+                    {isEs ? 'Saludos desde Bávaro' : 'Greetings from Bávaro'}
+                  </p>
+                  <span className="grid h-10 w-10 place-items-center rounded-pebble bg-mango-light font-display text-sm font-bold text-ink sm:h-11 sm:w-11">
+                    4.99
+                  </span>
                 </div>
               </div>
             </motion.div>
 
-            <div className="absolute left-16 top-28" style={{ animation: 'swimBob 6s ease-in-out infinite' }}>
+            <motion.div
+              className="absolute left-[1%] top-4 z-10 w-[42%] max-w-[11rem] sm:left-[7%] sm:top-8 sm:max-w-[13rem] lg:left-5 lg:top-16 xl:left-10"
+              initial={{ opacity: 0, y: 28, rotate: -14 }}
+              animate={{ opacity: 1, y: 0, rotate: -8 }}
+              transition={{ duration: 0.9, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="hero-polaroid hero-polaroid-small animate-wave-sway-4">
+                <div className="hero-media-window h-28 sm:h-36 lg:h-40">
+                  {renderMedia(heroMedia[1], 'h-full w-full object-cover photo-pop')}
+                </div>
+                <p className="hero-polaroid-caption">{isEs ? 'sol + sal' : 'sun + salt'}</p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="absolute right-[1%] top-12 z-10 w-[39%] max-w-[10.5rem] sm:right-[4%] sm:top-16 sm:max-w-[12.5rem] lg:right-0 lg:top-20"
+              initial={{ opacity: 0, y: 28, rotate: 15 }}
+              animate={{ opacity: 1, y: 0, rotate: 9 }}
+              transition={{ duration: 0.9, delay: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="hero-polaroid hero-polaroid-small animate-wave-sway-6">
+                <div className="hero-media-window h-24 sm:h-32 lg:h-36">
+                  {renderMedia(heroMedia[2], 'h-full w-full object-cover photo-pop')}
+                </div>
+                <p className="hero-polaroid-caption">{isEs ? 'un recuerdo' : 'a keepsake'}</p>
+              </div>
+            </motion.div>
+
+            <div className="absolute left-[37%] top-[42%] z-30 sm:left-[42%] lg:left-16 lg:top-28" style={{ animation: 'swimBob 6s ease-in-out infinite' }}>
               <Hibiscus className="h-16 w-16 animate-spin-slow drop-shadow-[0_10px_8px_rgba(6,50,61,0.3)]" />
             </div>
           </motion.div>

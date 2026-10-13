@@ -8,6 +8,22 @@ export interface PaymentVisibility {
   cash?: boolean;
 }
 
+export type HeroMediaType = 'image' | 'video';
+
+/** One of the three hand-cut cards in the home-page media collage. */
+export interface HeroMediaItem {
+  url: string;
+  type: HeroMediaType;
+  /** Shown to screen readers for images; also works as a useful admin label. */
+  alt?: string;
+}
+
+export const defaultHeroMedia: HeroMediaItem[] = [
+  { url: '/buggy.mp4', type: 'video', alt: 'Buggy adventure in Punta Cana' },
+  { url: '/imgs/tours/tour_saona_island_detail_9.jpg', type: 'image', alt: 'Saona Island shore' },
+  { url: '/imgs/tours/tour_speed_boat_detail_5.jpg', type: 'image', alt: 'Caribbean speedboat' },
+];
+
 export interface BrandSettings {
   brandName: string;
   /** The named person guests will speak with on WhatsApp and in the planner. */
@@ -24,6 +40,8 @@ export interface BrandSettings {
   /** Master switch for card payments. Off by default: nothing takes money by accident. */
   stripeEnabled?: boolean;
   paymentVisibility?: PaymentVisibility;
+  /** The three image/video cards that appear beside the home-page welcome. */
+  heroMedia?: HeroMediaItem[];
 }
 
 /**
@@ -48,6 +66,7 @@ const defaultBrandSettings: BrandSettings = {
   brandicon: '',
   stripeEnabled: false,
   paymentVisibility: { stripe: true, paypal: true, cash: true },
+  heroMedia: defaultHeroMedia,
 };
 
 const normalizePaymentVisibility = (input: unknown): PaymentVisibility => {
@@ -57,6 +76,19 @@ const normalizePaymentVisibility = (input: unknown): PaymentVisibility => {
     paypal: typeof source.paypal === 'boolean' ? source.paypal : true,
     cash: typeof source.cash === 'boolean' ? source.cash : true,
   };
+};
+
+const normalizeHeroMedia = (input: unknown): HeroMediaItem[] => {
+  if (!Array.isArray(input)) return defaultHeroMedia;
+
+  return defaultHeroMedia.map((fallback, index) => {
+    const item = input[index] as Partial<HeroMediaItem> | undefined;
+    return {
+      url: typeof item?.url === 'string' && item.url.trim() ? item.url.trim() : fallback.url,
+      type: item?.type === 'video' ? 'video' : item?.type === 'image' ? 'image' : fallback.type,
+      alt: typeof item?.alt === 'string' ? item.alt.trim() : fallback.alt,
+    };
+  });
 };
 
 const normalizeBrandSettings = (input: Partial<BrandSettings> | null | undefined): BrandSettings => ({
@@ -85,6 +117,7 @@ const normalizeBrandSettings = (input: Partial<BrandSettings> | null | undefined
       : defaultBrandSettings.brandicon,
   stripeEnabled: typeof input?.stripeEnabled === 'boolean' ? input.stripeEnabled : false,
   paymentVisibility: normalizePaymentVisibility(input?.paymentVisibility),
+  heroMedia: normalizeHeroMedia(input?.heroMedia),
 });
 
 export const getBrandSettings = async (): Promise<BrandSettings> => {
@@ -106,10 +139,10 @@ export const saveBrandSettings = async (settings: BrandSettings): Promise<void> 
   }
 };
 
-export const uploadBrandIcon = async (file: File): Promise<string> => {
+const uploadMedia = async (file: File, folder: string): Promise<string> => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('folder', 'brand-icons');
+  formData.append('folder', folder);
 
   const adminPassword = getAdminPassword() ?? '';
 
@@ -131,3 +164,7 @@ export const uploadBrandIcon = async (file: File): Promise<string> => {
     return '';
   }
 };
+
+export const uploadBrandIcon = async (file: File): Promise<string> => uploadMedia(file, 'brand-icons');
+
+export const uploadHeroMedia = async (file: File): Promise<string> => uploadMedia(file, 'hero-media');
